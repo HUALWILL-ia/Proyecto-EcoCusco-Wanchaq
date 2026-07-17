@@ -1,0 +1,29 @@
+{
+  "name": "ecorutas-wanchaq-backend",
+  "version": "1.0.0",
+  "description": "API REST de EcoRutas Wanchaq (Fase 3) — Municipalidad Distrital de Wanchaq. PostgreSQL con triggers de negocio, auditoría automática y GPS real vía Socket.IO.",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "db:init": "psql -U postgres -d eccoCusco -f ../baseDatos_eccoCusco.sql"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "express": "^4.19.2",
+    "express-validator": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.14",
+    "pdfkit": "^0.15.0",
+    "pg": "^8.22.0",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

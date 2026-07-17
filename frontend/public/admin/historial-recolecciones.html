@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Historial de recolecciones — EcoRutas Wanchaq</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/base.css">
+<link rel="stylesheet" href="../../css/components.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<link rel="icon" type="image/png" href="../../assets/logos/Logo_solo_hoja.png">
+</head>
+<body>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="flex items-center gap-3">
+        <button class="icon-btn sidebar-toggle" id="btnSidebarToggle" aria-label="Abrir menú">☰</button>
+        <div class="topbar-title">
+          <h1>Historial de recolecciones</h1>
+          <span>Registros diarios reportados por la flota de operadores</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="kpi-grid" id="kpiHistorial"></div>
+
+      <div class="card mt-4">
+        <div class="table-toolbar">
+          <div class="table-filters">
+            <select id="filtroOperador" class="form-control" style="width:220px;">
+              <option value="">Todos los operadores</option>
+            </select>
+            <select id="filtroTipoResiduo" class="form-control" style="width:180px;">
+              <option value="">Todos los tipos</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead><tr><th>Fecha</th><th>Operador</th><th>Ruta</th><th>Tipo de residuo</th><th>Kg</th><th>Observaciones</th></tr></thead>
+            <tbody id="tablaHistorialAdmin"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="paginacionHistorial"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="../../js/mocks/zonas.mock.js"></script>
+<script src="../../js/mocks/usuarios.mock.js"></script>
+<script src="../../js/mocks/residuos.mock.js"></script>
+<script src="../../js/mocks/camiones.mock.js"></script>
+<script src="../../js/mocks/rutas.mock.js"></script>
+<script src="../../js/mocks/incidencias.mock.js"></script>
+<script src="../../js/mocks/notificaciones.mock.js"></script>
+<script src="../../js/utils/api.js"></script>
+<script src="../../js/utils/storage.js"></script>
+<script src="../../js/utils/validaciones.js"></script>
+<script src="../../js/utils/auth-simulado.js"></script>
+<script src="../../js/utils/ui.js"></script>
+<script src="../../js/pages/admin-historial-recolecciones.js"></script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de vecino — EcoRutas Wanchaq</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="icon" type="image/png" href="../assets/logos/Logo_solo_hoja.png">
+</head>
+<body>
+
+<div class="auth-shell">
+  <section class="auth-visual">
+    <span class="hero-eyebrow">🧑‍🤝‍🧑 Registro de vecinos</span>
+    <h1 style="color:#fff;">Únete a EcoRutas Wanchaq</h1>
+    <p style="color:#d9e8de;">El registro de ciudadanos es libre e inmediato. Solo necesitas tu correo, DNI, una contraseña y tu zona de residencia dentro del distrito.</p>
+    <div class="zones-strip">
+      <span class="zone-chip">Centro Wanchaq</span>
+      <span class="zone-chip">Miravalle</span>
+      <span class="zone-chip">T'ío</span>
+      <span class="zone-chip">Balconcillo</span>
+      <span class="zone-chip">Villa Mejorada</span>
+    </div>
+  </section>
+
+  <section class="auth-form-side">
+    <div class="auth-card card">
+      <img src="../assets/logos/Logo_solo_hoja.png" alt="EcoRutas Wanchaq" class="brand-logo">
+      <div class="auth-header">
+        <h2>Crear cuenta de vecino</h2>
+        <p>Regístrate como ciudadano del distrito de Wanchaq.</p>
+      </div>
+
+      <form id="formRegistro" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="correo">Correo electrónico <span class="required">*</span></label>
+          <input type="email" id="correo" class="form-control" placeholder="tucorreo@ejemplo.com" autocomplete="email">
+          <div class="form-error" id="errorCorreo"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="dni">DNI (8 dígitos) <span class="required">*</span></label>
+          <input type="text" id="dni" class="form-control" placeholder="12345678" maxlength="8" inputmode="numeric" autocomplete="off">
+          <div class="form-error" id="errorDni"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="zona">Zona de residencia <span class="required">*</span></label>
+          <select id="zona" class="form-control">
+            <option value="">Selecciona tu zona...</option>
+          </select>
+          <div class="form-error" id="errorZona"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Contraseña <span class="required">*</span></label>
+          <input type="password" id="password" class="form-control" placeholder="Mínimo 8 caracteres, letras y números" autocomplete="new-password">
+          <div class="form-hint">Debe incluir letras y números, mínimo 8 caracteres.</div>
+          <div class="form-error" id="errorPassword"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirmarPassword">Confirmar contraseña <span class="required">*</span></label>
+          <input type="password" id="confirmarPassword" class="form-control" placeholder="Repite tu contraseña" autocomplete="new-password">
+          <div class="form-error" id="errorConfirmarPassword"></div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-check">
+            <input type="checkbox" id="terminos">
+            <label for="terminos">Acepto los <a href="#" tabindex="-1">términos y condiciones</a> y la política de tratamiento de datos personales de la Municipalidad Distrital de Wanchaq. <span class="required">*</span></label>
+          </div>
+          <div class="form-error" id="errorTerminos"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnRegistro">
+          <span id="btnRegistroTexto">Crear mi cuenta</span>
+        </button>
+      </form>
+
+      <p class="auth-footer-link">
+        ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>
+      </p>
+    </div>
+  </section>
+</div>
+
+<script src="../js/mocks/zonas.mock.js"></script>
+<script src="../js/mocks/usuarios.mock.js"></script>
+<script src="../js/mocks/residuos.mock.js"></script>
+<script src="../js/mocks/camiones.mock.js"></script>
+<script src="../js/mocks/rutas.mock.js"></script>
+<script src="../js/mocks/incidencias.mock.js"></script>
+<script src="../js/mocks/notificaciones.mock.js"></script>
+<script src="../js/utils/api.js"></script>
+<script src="../js/utils/storage.js"></script>
+<script src="../js/utils/validaciones.js"></script>
+<script src="../js/utils/auth-simulado.js"></script>
+<script src="../js/utils/ui.js"></script>
+<script src="../js/pages/registro-ciudadano.js"></script>
+</body>
+</html>

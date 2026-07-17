@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camiones — EcoRutas Wanchaq</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/base.css">
+<link rel="stylesheet" href="../../css/components.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>#mapaGpsCamion { width:100%; height:380px; border-radius:var(--radius-lg); z-index:1; }</style>
+<link rel="icon" type="image/png" href="../../assets/logos/Logo_solo_hoja.png">
+</head>
+<body>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="flex items-center gap-3">
+        <button class="icon-btn sidebar-toggle" id="btnSidebarToggle" aria-label="Abrir menú">☰</button>
+        <div class="topbar-title">
+          <h1>Flota de camiones</h1>
+          <span>Vehículos recolectores de la Municipalidad Distrital de Wanchaq</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary btn-sm" id="btnNuevoCamion">+ Nuevo camión</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr><th>Placa</th><th>Modelo</th><th>Capacidad</th><th>Zona</th><th>Operador</th><th>Estado</th><th>Combustible</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tablaCamiones"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal crear/editar camión -->
+<div class="modal-overlay" id="modalCamion">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="tituloModalCamion">Nuevo camión</h3>
+      <button class="modal-close" onclick="cerrarModal('modalCamion')">&times;</button>
+    </div>
+    <form id="formCamion" novalidate>
+      <input type="hidden" id="camionId">
+      <div class="dashboard-grid" style="grid-template-columns:1fr 1fr; margin-top:0;">
+        <div class="form-group">
+          <label class="form-label" for="placa">Placa <span class="required">*</span></label>
+          <input type="text" id="placa" class="form-control" placeholder="WQC-105">
+          <div class="form-error" id="errorPlaca"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="capacidadKg">Capacidad (kg)</label>
+          <input type="number" id="capacidadKg" class="form-control" min="0" value="5000">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="modelo">Modelo <span class="required">*</span></label>
+        <input type="text" id="modelo" class="form-control" placeholder="Ej. Volvo FE Compactador 16m³">
+        <div class="form-error" id="errorModelo"></div>
+      </div>
+      <div class="dashboard-grid" style="grid-template-columns:1fr 1fr; margin-top:0;">
+        <div class="form-group">
+          <label class="form-label" for="zonaAsignadaCamion">Zona asignada</label>
+          <select id="zonaAsignadaCamion" class="form-control"><option value="">Sin asignar</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="estadoCamion">Estado</label>
+          <select id="estadoCamion" class="form-control">
+            <option value="operativo">Operativo</option>
+            <option value="mantenimiento">Mantenimiento</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalCamion')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de seguimiento GPS en vivo -->
+<div class="modal-overlay" id="modalGpsCamion">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header">
+      <h3 id="tituloModalGps">Seguimiento GPS en vivo</h3>
+      <button class="modal-close" onclick="cerrarModalGps()">&times;</button>
+    </div>
+    <div id="mapaGpsCamion"></div>
+    <div id="infoGpsCamion" class="mt-3"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="../../js/mocks/zonas.mock.js"></script>
+<script src="../../js/mocks/usuarios.mock.js"></script>
+<script src="../../js/mocks/residuos.mock.js"></script>
+<script src="../../js/mocks/camiones.mock.js"></script>
+<script src="../../js/mocks/rutas.mock.js"></script>
+<script src="../../js/mocks/incidencias.mock.js"></script>
+<script src="../../js/mocks/notificaciones.mock.js"></script>
+<script src="../../js/utils/api.js"></script>
+<script src="../../js/utils/storage.js"></script>
+<script src="../../js/utils/validaciones.js"></script>
+<script src="../../js/utils/auth-simulado.js"></script>
+<script src="../../js/utils/ui.js"></script>
+<script src="../../js/pages/admin-camiones.js"></script>
+</body>
+</html>

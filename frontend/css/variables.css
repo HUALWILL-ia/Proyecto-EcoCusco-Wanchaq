@@ -1,0 +1,114 @@
+/* ==========================================================================
+   EcoRutas Wanchaq — Variables globales de diseño
+   Municipalidad Distrital de Wanchaq — Gerencia de Gestión Ambiental
+   ========================================================================== */
+
+:root {
+  /* Paleta institucional: verde (sostenibilidad) + azul grisáceo (municipal) */
+  --color-primary-50:  #eefaf1;
+  --color-primary-100: #d6f2dd;
+  --color-primary-200: #aee3bc;
+  --color-primary-300: #7dce95;
+  --color-primary-400: #4bb56f;
+  --color-primary-500: #2c9a54;
+  --color-primary-600: #1f7d43;
+  --color-primary-700: #1b6538;
+  --color-primary-800: #17502f;
+  --color-primary-900: #123f27;
+
+  --color-institutional-700: #163a5c;
+  --color-institutional-800: #102b44;
+  --color-institutional-900: #0b1f31;
+
+  --color-accent-amber: #d98c1f;
+  --color-accent-red: #c23b3b;
+  --color-accent-blue: #2a6fb0;
+
+  /* Superficies */
+  --color-bg: #f4f7f5;
+  --color-bg-alt: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eef2f0;
+  --color-border: #dfe6e2;
+  --color-border-strong: #c4d0c9;
+
+  /* Texto */
+  --color-text-primary: #16241d;
+  --color-text-secondary: #4b5d54;
+  --color-text-muted: #78897f;
+  --color-text-inverse: #ffffff;
+
+  /* Estados semánticos */
+  --color-success: #2c9a54;
+  --color-success-bg: #e5f6ea;
+  --color-warning: #d98c1f;
+  --color-warning-bg: #fdf1de;
+  --color-danger: #c23b3b;
+  --color-danger-bg: #fbe8e8;
+  --color-info: #2a6fb0;
+  --color-info-bg: #e7f0fa;
+
+  /* Tipografía */
+  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-display: 'Poppins', 'Inter', sans-serif;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.5rem;
+  --fs-2xl: 1.875rem;
+  --fs-3xl: 2.25rem;
+  --fs-4xl: 2.75rem;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* Espaciado */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+  --space-9: 4rem;
+
+  /* Bordes y sombras */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(11, 31, 49, 0.06);
+  --shadow-md: 0 4px 12px rgba(11, 31, 49, 0.08);
+  --shadow-lg: 0 12px 32px rgba(11, 31, 49, 0.12);
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --sidebar-width-collapsed: 76px;
+  --navbar-height: 68px;
+  --content-max-width: 1280px;
+
+  --transition-fast: 150ms ease;
+  --transition-base: 220ms ease;
+}
+
+/* Tema oscuro reservado para futuras fases de accesibilidad */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="auto"] {
+    --color-bg: #0f1713;
+    --color-bg-alt: #16211b;
+    --color-surface: #16211b;
+    --color-surface-muted: #1c2a22;
+    --color-border: #263a2f;
+    --color-border-strong: #324a3c;
+    --color-text-primary: #eaf3ec;
+    --color-text-secondary: #b8c8bd;
+    --color-text-muted: #8ea095;
+  }
+}

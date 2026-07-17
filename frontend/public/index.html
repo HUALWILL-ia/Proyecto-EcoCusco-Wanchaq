@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoRutas Wanchaq — Municipalidad Distrital de Wanchaq</title>
+<meta name="description" content="Sistema de gestión inteligente de residuos sólidos de la Municipalidad Distrital de Wanchaq, Cusco.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="icon" type="image/png" href="../assets/logos/Logo_solo_hoja.png">
+</head>
+<body>
+
+<div class="institutional-bar">
+  <div class="container">
+    <span>🇵🇪 Municipalidad Distrital de Wanchaq — Portal de servicios ambientales</span>
+    <span>📞 (084) 234 567 &nbsp;|&nbsp; ✉️ gestionambiental@munwanchaq.gob.pe</span>
+  </div>
+</div>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-brand" style="text-decoration:none;">
+      <img src="../assets/logos/Logo_solo_hoja.png" alt="EcoRutas Wanchaq" class="brand-logo">
+      <div class="navbar-brand-text">
+        <strong>EcoRutas Wanchaq</strong>
+        <span>Municipalidad Distrital de Wanchaq</span>
+      </div>
+    </a>
+    <button class="navbar-toggle" id="btnNavToggle" aria-label="Abrir menú">☰</button>
+    <ul class="navbar-links" id="navbarLinks">
+      <li><a href="#servicio">El servicio</a></li>
+      <li><a href="#roles">Perfiles</a></li>
+      <li><a href="#zonas">Zonas de cobertura</a></li>
+    </ul>
+    <div class="navbar-actions">
+      <a href="login.html" class="btn btn-outline btn-sm" style="color:#fff; border-color:rgba(255,255,255,0.5);">Iniciar sesión</a>
+      <a href="registro-ciudadano.html" class="btn btn-primary btn-sm">Regístrate</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="servicio">
+  <div class="hero-inner">
+    <div>
+      <span class="hero-eyebrow">🏛️ Un servicio oficial de la Municipalidad Distrital de Wanchaq</span>
+      <h1>Gestión inteligente de residuos sólidos para Wanchaq</h1>
+      <p class="lead">Consulta horarios de recolección, sigue el camión en tiempo real, reporta incidencias y contribuye a un distrito más limpio y sostenible.</p>
+      <div class="hero-actions">
+        <a href="registro-ciudadano.html" class="btn btn-primary btn-lg">Soy vecino de Wanchaq</a>
+        <a href="login.html" class="btn btn-secondary btn-lg" style="background:rgba(255,255,255,0.12); color:#fff; border-color:rgba(255,255,255,0.3);">Acceso personal municipal</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="kpi-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="kpi-card" style="background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2);">
+          <span class="kpi-label" style="color:#cfe0d6;">Zonas cubiertas</span>
+          <span class="kpi-value" style="color:#fff;">9</span>
+        </div>
+        <div class="kpi-card" style="background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2);">
+          <span class="kpi-label" style="color:#cfe0d6;">Camiones activos</span>
+          <span class="kpi-value" style="color:#fff;">4</span>
+        </div>
+        <div class="kpi-card" style="background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2);">
+          <span class="kpi-label" style="color:#cfe0d6;">Rutas diarias</span>
+          <span class="kpi-value" style="color:#fff;">12+</span>
+        </div>
+        <div class="kpi-card" style="background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2);">
+          <span class="kpi-label" style="color:#cfe0d6;">Vecinos registrados</span>
+          <span class="kpi-value" style="color:#fff;">+1,200</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="eyebrow">¿Qué puedes hacer?</span>
+        <h2>Todo lo que necesitas para una gestión limpia y ordenada</h2>
+        <p>Una plataforma pensada para vecinos, operadores de campo y el equipo de gestión ambiental de la municipalidad.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="icon">🗓️</div>
+          <h3>Horarios por zona</h3>
+          <p>Consulta los días y horas exactas de recolección según tu sector en Wanchaq.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">📍</div>
+          <h3>Seguimiento GPS</h3>
+          <p>Visualiza en el mapa la posición aproximada del camión recolector de tu zona.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">🚨</div>
+          <h3>Reporte de incidencias</h3>
+          <p>Informa acumulación de residuos, contenedores dañados u otros problemas en segundos.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">♻️</div>
+          <h3>Cultura del reciclaje</h3>
+          <p>Sigue tu progreso ecológico y conoce los tipos de residuo y cómo separarlos.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">🧭</div>
+          <h3>Rutas optimizadas</h3>
+          <p>El equipo operativo gestiona rutas, camiones y recolecciones desde un solo lugar.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">📊</div>
+          <h3>Reportes municipales</h3>
+          <p>La Gerencia de Gestión Ambiental supervisa indicadores clave del servicio en tiempo real.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="roles" style="background:var(--color-surface-muted);">
+    <div class="container">
+      <div class="section-header">
+        <span class="eyebrow">Perfiles del sistema</span>
+        <h2>Un acceso para cada rol municipal</h2>
+      </div>
+      <div class="roles-grid">
+        <div class="role-card">
+          <div class="icon">🧑‍🤝‍🧑</div>
+          <h3>Ciudadano</h3>
+          <p>Vecino residente del distrito de Wanchaq. Registro libre con correo, DNI y zona de residencia.</p>
+          <a href="registro-ciudadano.html" class="btn btn-outline btn-sm mt-3">Crear cuenta de vecino</a>
+        </div>
+        <div class="role-card">
+          <div class="icon">🚛</div>
+          <h3>Operador de Recolección</h3>
+          <p>Trabajador de la flota municipal. Cuenta creada exclusivamente por el área administrativa, con acceso protegido por verificación en dos pasos.</p>
+          <a href="login.html" class="btn btn-outline btn-sm mt-3">Acceso de operador</a>
+        </div>
+        <div class="role-card">
+          <div class="icon">🏛️</div>
+          <h3>Coordinador Municipal</h3>
+          <p>Personal de la Gerencia de Gestión Ambiental. Administra usuarios, zonas, flota, rutas y reportes del distrito.</p>
+          <a href="login.html" class="btn btn-outline btn-sm mt-3">Acceso administrativo</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="zonas">
+    <div class="container">
+      <div class="section-header">
+        <span class="eyebrow">Cobertura actual</span>
+        <h2>Zonas de recolección en Wanchaq</h2>
+        <p>El servicio opera actualmente en los siguientes sectores y urbanizaciones del distrito.</p>
+      </div>
+      <div class="zones-strip" id="zonesStrip"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="cta-banner">
+        <h2>Súmate a un Wanchaq más limpio</h2>
+        <p>Regístrate como vecino y empieza a seguir la recolección de tu zona hoy mismo.</p>
+        <a href="registro-ciudadano.html" class="btn btn-secondary btn-lg mt-3" style="background:#fff; color:var(--color-primary-700);">Registrarme ahora</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer" id="footer-institucional"></footer>
+
+<script src="../js/mocks/zonas.mock.js"></script>
+<script src="../js/utils/api.js"></script>
+<script src="../js/utils/storage.js"></script>
+<script src="../js/utils/auth-simulado.js"></script>
+<script src="../js/utils/ui.js"></script>
+<script src="../js/pages/index.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno (credenciales reales — nunca se sube)
+.env
+.env.local
+
+# Archivos subidos por usuarios (incidencias, etc.)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db

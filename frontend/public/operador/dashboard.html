@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de operador — EcoRutas Wanchaq</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/base.css">
+<link rel="stylesheet" href="../../css/components.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<link rel="icon" type="image/png" href="../../assets/logos/Logo_solo_hoja.png">
+</head>
+<body>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="flex items-center gap-3">
+        <button class="icon-btn sidebar-toggle" id="btnSidebarToggle" aria-label="Abrir menú">☰</button>
+        <div class="topbar-title">
+          <h1>Mi jornada de recolección</h1>
+          <span id="fechaHoyOperador"></span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" aria-label="Notificaciones"><span class="dot"></span>🔔</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="alert alert-warning" id="avisoPasswordTemporal" style="display:none; margin-bottom:var(--space-5);">
+        <span>🔐</span>
+        <div>
+          <strong>Sigues usando la contraseña temporal enviada por correo.</strong>
+          <p class="mb-0">Por seguridad, <a href="perfil.html">cámbiala ahora</a> desde tu perfil.</p>
+        </div>
+      </div>
+
+      <div class="kpi-grid" id="kpiGridOperador">
+        <div class="kpi-card"><div class="skeleton skeleton-card"></div></div>
+        <div class="kpi-card"><div class="skeleton skeleton-card"></div></div>
+        <div class="kpi-card"><div class="skeleton skeleton-card"></div></div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="stack">
+          <div class="card">
+            <div class="card-header"><h2>Progreso de ruta del día</h2></div>
+            <div id="progresoRuta"><div class="loading-overlay"><span class="spinner"></span> Cargando ruta asignada...</div></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h2>Accesos rápidos</h2></div>
+            <div class="quick-actions-grid">
+              <a href="rutas.html" class="quick-action">
+                <span class="icon">🧭</span>
+                <strong>Ver mis rutas</strong>
+                <span>Detalle de puntos de recolección</span>
+              </a>
+              <a href="registro-recoleccion.html" class="quick-action">
+                <span class="icon">✅</span>
+                <strong>Registrar recolección</strong>
+                <span>Marca puntos como completados</span>
+              </a>
+              <a href="incidencias.html" class="quick-action">
+                <span class="icon">🚨</span>
+                <strong>Reportar incidencia</strong>
+                <span>Obstáculos, residuos peligrosos, etc.</span>
+              </a>
+              <a href="seguimiento-gps.html" class="quick-action">
+                <span class="icon">📍</span>
+                <strong>Ver mi posición GPS</strong>
+                <span>Visualiza tu ubicación en el mapa</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <div class="card-header"><h3 class="mb-0">Estado del camión asignado</h3></div>
+            <div id="estadoCamion"><div class="loading-overlay"><span class="spinner"></span> Cargando...</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3 class="mb-0">Notificaciones recientes</h3></div>
+            <ul class="feed-list" id="feedNotificacionesOperador"></ul>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="../../js/mocks/zonas.mock.js"></script>
+<script src="../../js/mocks/usuarios.mock.js"></script>
+<script src="../../js/mocks/residuos.mock.js"></script>
+<script src="../../js/mocks/camiones.mock.js"></script>
+<script src="../../js/mocks/rutas.mock.js"></script>
+<script src="../../js/mocks/incidencias.mock.js"></script>
+<script src="../../js/mocks/notificaciones.mock.js"></script>
+<script src="../../js/utils/api.js"></script>
+<script src="../../js/utils/storage.js"></script>
+<script src="../../js/utils/validaciones.js"></script>
+<script src="../../js/utils/auth-simulado.js"></script>
+<script src="../../js/utils/ui.js"></script>
+<script src="../../js/pages/operador-dashboard.js"></script>
+</body>
+</html>

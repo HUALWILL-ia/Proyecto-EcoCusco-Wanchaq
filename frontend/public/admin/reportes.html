@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reportes — EcoRutas Wanchaq</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/base.css">
+<link rel="stylesheet" href="../../css/components.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<link rel="icon" type="image/png" href="../../assets/logos/Logo_solo_hoja.png">
+</head>
+<body>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="flex items-center gap-3">
+        <button class="icon-btn sidebar-toggle" id="btnSidebarToggle" aria-label="Abrir menú">☰</button>
+        <div class="topbar-title">
+          <h1>Reportes municipales</h1>
+          <span>Indicadores para la Gerencia de Gestión Ambiental</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm" id="btnExportar">⬇️ Exportar reporte (PDF)</button>
+        <button class="btn btn-secondary btn-sm" id="btnExportarExcel">⬇️ Exportar (Excel)</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header"><h2>Incidencias por estado</h2></div>
+          <canvas id="chartIncidenciasEstado" height="220"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Recolección por tipo de residuo</h2></div>
+          <canvas id="chartTipoResiduo" height="220"></canvas>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-header"><h2>Usuarios registrados por rol</h2></div>
+        <canvas id="chartUsuariosRol" height="90"></canvas>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="../../js/mocks/zonas.mock.js"></script>
+<script src="../../js/mocks/usuarios.mock.js"></script>
+<script src="../../js/mocks/residuos.mock.js"></script>
+<script src="../../js/mocks/camiones.mock.js"></script>
+<script src="../../js/mocks/rutas.mock.js"></script>
+<script src="../../js/mocks/incidencias.mock.js"></script>
+<script src="../../js/mocks/notificaciones.mock.js"></script>
+<script src="../../js/utils/api.js"></script>
+<script src="../../js/utils/storage.js"></script>
+<script src="../../js/utils/validaciones.js"></script>
+<script src="../../js/utils/auth-simulado.js"></script>
+<script src="../../js/utils/ui.js"></script>
+<script src="../../js/pages/admin-reportes.js"></script>
+</body>
+</html>

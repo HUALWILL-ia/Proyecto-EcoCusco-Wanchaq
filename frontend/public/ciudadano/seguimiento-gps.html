@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seguimiento GPS — EcoRutas Wanchaq</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/base.css">
+<link rel="stylesheet" href="../../css/components.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+  #mapaGps { width: 100%; height: 460px; border-radius: var(--radius-lg); z-index: 1; }
+</style>
+<link rel="icon" type="image/png" href="../../assets/logos/Logo_solo_hoja.png">
+</head>
+<body>
+
+<nav class="navbar" id="navbar-ciudadano"></nav>
+
+<main class="container" style="padding-top:var(--space-6); padding-bottom:var(--space-7);">
+  <div class="topbar-title" style="margin-bottom:var(--space-5);">
+    <h1>Seguimiento GPS del camión recolector</h1>
+    <span>Ubicación real, en vivo, del vehículo asignado a tu zona</span>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="card" style="padding:var(--space-3);">
+      <div id="mapaGps"></div>
+    </div>
+    <div class="stack">
+      <div class="card" id="infoCamion">
+        <div class="loading-overlay"><span class="spinner"></span> Localizando camión...</div>
+      </div>
+      <div class="alert alert-warning" id="avisoSenal" style="display:none; font-size:var(--fs-sm);">
+        ⚠️ Señal GPS no disponible. El operador no ha transmitido su ubicación en los últimos minutos.
+      </div>
+      <div class="alert alert-info" style="font-size:var(--fs-sm);">
+        📡 La posición se actualiza en tiempo real apenas el operador transmite desde su celular (Socket.IO). Si no ves movimiento, es porque el camión aún no ha iniciado su recorrido o no transmite en este momento.
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer" id="footer-institucional"></footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="../../js/mocks/zonas.mock.js"></script>
+<script src="../../js/mocks/usuarios.mock.js"></script>
+<script src="../../js/mocks/residuos.mock.js"></script>
+<script src="../../js/mocks/camiones.mock.js"></script>
+<script src="../../js/mocks/rutas.mock.js"></script>
+<script src="../../js/mocks/incidencias.mock.js"></script>
+<script src="../../js/mocks/notificaciones.mock.js"></script>
+<script src="../../js/utils/api.js"></script>
+<script src="../../js/utils/storage.js"></script>
+<script src="../../js/utils/validaciones.js"></script>
+<script src="../../js/utils/auth-simulado.js"></script>
+<script src="../../js/utils/ui.js"></script>
+<script src="../../js/pages/ciudadano-seguimiento-gps.js"></script>
+</body>
+</html>
