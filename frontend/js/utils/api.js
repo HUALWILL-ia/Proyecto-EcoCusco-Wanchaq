@@ -9,7 +9,14 @@
  * de lo que dependía de esa sesión.
  */
 
-const API_BASE_URL = 'http://localhost:4000/api';
+// En localhost (desarrollo) apunta al backend local. En cualquier otro
+// dominio (producción) apunta al backend desplegado en Render — actualiza
+// esta URL cuando tengas la definitiva (ver backend/README.md, sección
+// "Desplegar con HTTPS").
+const ES_LOCAL = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const API_BASE_URL = ES_LOCAL
+  ? 'http://localhost:4000/api'
+  : 'https://ecorutas-wanchaq-api.onrender.com/api';
 
 /**
  * Lee el token JWT actual desde la sesión guardada en localStorage.

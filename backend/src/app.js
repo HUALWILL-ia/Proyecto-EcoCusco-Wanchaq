@@ -15,6 +15,13 @@ const logger = require('./utils/logger');
 
 const app = express();
 
+// Detrás del proxy de Render (u otro PaaS) req.ip devolvería siempre la IP
+// interna del proxy si no se declara como confiable. Esto es necesario para
+// que el rate limiter y los logs vean la IP real del cliente.
+if (env.isProduction) {
+  app.set('trust proxy', 1);
+}
+
 // --- CORS ---------------------------------------------------------------
 // En producción solo se permite el origen configurado en FRONTEND_URL.
 // En desarrollo se acepta cualquier origen para facilitar abrir el frontend
