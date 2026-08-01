@@ -52,7 +52,12 @@
             <div class="loading-overlay"><span class="spinner"></span> Solicitando ubicación...</div>
           </div>
           <div class="alert alert-info" style="font-size:var(--fs-sm);">
-            📡 Esta pantalla usa la geolocalización real de tu navegador (<code>navigator.geolocation.watchPosition</code>) y transmite tu posición al sistema municipal automáticamente mientras esté abierta. Ajusta la frecuencia máxima en <a href="configuracion-gps.html">Configuración GPS</a>.
+            <p class="mb-0">📡 Tu posición se transmite al sistema municipal automáticamente mientras esta pantalla esté abierta. Ajusta la frecuencia de envío en <a href="configuracion-gps.html">Configuración GPS</a>.</p>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3 class="mb-0">Zonas de recolección</h3></div>
+            <p class="text-muted" style="margin-top:calc(var(--space-2) * -1);">Tu zona asignada aparece resaltada frente a las demás.</p>
+            <div id="leyendaZonas" style="display:flex; flex-wrap:wrap; gap:var(--space-2);"></div>
           </div>
         </div>
       </div>

@@ -16,7 +16,7 @@ function envoltorio(tituloInterno, contenidoHtml) {
         ${contenidoHtml}
       </div>
       <div style="background:#eef2f0; color:#78897f; padding:12px 24px; font-size:11px;">
-        Este es un mensaje automático de EcoRutas Wanchaq (Fase 2 — entorno de desarrollo). No respondas a este correo.
+        Este es un mensaje automático de EcoRutas Wanchaq. No respondas a este correo.
       </div>
     </div>
   `;
@@ -47,4 +47,57 @@ function plantillaCredencialesOperador(nombre, correo, passwordTemporal) {
   );
 }
 
-module.exports = { plantillaCodigo2FA, plantillaCredencialesOperador };
+function plantillaCredencialesAdmin(nombre, correo, passwordTemporal) {
+  return envoltorio(
+    'Tu cuenta de administrador fue creada',
+    `
+      <p>Hola ${nombre},</p>
+      <p>Se creó tu cuenta como <strong>Administrador</strong> en EcoRutas Wanchaq.</p>
+      <p><strong>Correo:</strong> ${correo}<br>
+      <strong>Contraseña temporal:</strong> ${passwordTemporal}</p>
+      <p>Por seguridad, cambia esta contraseña apenas inicies sesión. Recuerda que tu acceso requiere verificación en dos pasos (2FA).</p>
+    `
+  );
+}
+
+function plantillaRecoleccionRegistrada(nombre, { tipoResiduo, kg, fecha, camionPlaca, zonaNombre }) {
+  const fechaTexto = new Date(fecha).toLocaleString('es-PE', {
+    day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+  return envoltorio(
+    'Se registró la recolección de tu residuo',
+    `
+      <p>Hola ${nombre},</p>
+      <p>El camión recolector pasó por tu zona y se registró la recolección de tu residuo:</p>
+      <ul>
+        <li><strong>Tipo de residuo:</strong> ${tipoResiduo}</li>
+        <li><strong>Peso aproximado:</strong> ${kg} kg</li>
+        <li><strong>Fecha y hora:</strong> ${fechaTexto}</li>
+        <li><strong>Camión:</strong> ${camionPlaca || 'No identificado'}</li>
+        <li><strong>Zona/ruta:</strong> ${zonaNombre || 'No identificada'}</li>
+      </ul>
+      <p>Gracias por contribuir con la gestión de residuos sólidos de Wanchaq.</p>
+    `
+  );
+}
+
+function plantillaPasswordTemporal(nombre, correo, passwordTemporal) {
+  return envoltorio(
+    'Se restableció tu contraseña',
+    `
+      <p>Hola ${nombre},</p>
+      <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en EcoRutas Wanchaq.</p>
+      <p><strong>Correo:</strong> ${correo}<br>
+      <strong>Contraseña temporal:</strong> ${passwordTemporal}</p>
+      <p>Usa esta contraseña para iniciar sesión y cámbiala de inmediato desde tu perfil. Si tú no solicitaste este cambio, contacta a la municipalidad.</p>
+    `
+  );
+}
+
+module.exports = {
+  plantillaCodigo2FA,
+  plantillaCredencialesOperador,
+  plantillaCredencialesAdmin,
+  plantillaPasswordTemporal,
+  plantillaRecoleccionRegistrada,
+};

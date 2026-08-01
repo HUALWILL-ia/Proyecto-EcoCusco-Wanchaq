@@ -32,6 +32,14 @@ router.post(
 
 router.put('/:id', authMiddleware, roles(['admin']), zonas.actualizar);
 router.patch('/:id', authMiddleware, roles(['admin']), zonas.actualizar);
+router.put(
+  '/:id/poligono',
+  authMiddleware,
+  roles(['admin']),
+  [body('poligono').isArray({ min: 3 }).withMessage('El polígono debe tener al menos 3 puntos.')],
+  validate,
+  zonas.actualizarPoligono
+);
 router.delete('/:id', authMiddleware, roles(['admin']), zonas.eliminar);
 
 module.exports = router;

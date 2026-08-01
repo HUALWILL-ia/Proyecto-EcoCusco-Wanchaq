@@ -77,6 +77,30 @@
 
 select.form-control { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%234b5d54' d='M6 8 0 0h12z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.9rem center; padding-right: 2.2rem; }
 
+.password-field { position: relative; }
+.password-field .form-control { padding-right: 2.6rem; }
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--color-text-muted);
+  line-height: 0;
+}
+.password-toggle:hover { color: var(--color-text-primary); }
+.password-toggle:focus-visible { outline: 2px solid var(--color-primary-500); outline-offset: 1px; }
+.password-toggle svg { width: 20px; height: 20px; }
+
 .form-hint { font-size: var(--fs-xs); color: var(--color-text-muted); margin-top: var(--space-1); }
 .form-error { font-size: var(--fs-xs); color: var(--color-danger); margin-top: var(--space-1); display: none; }
 .form-error.show { display: block; }
@@ -207,6 +231,34 @@ table.data-table { width: 100%; border-collapse: collapse; font-size: var(--fs-s
 .data-table tbody tr:last-child td { border-bottom: none; }
 .data-table tbody tr:hover { background: var(--color-primary-50); }
 
+/* --- Tabs (JS vanilla, sin recargar página) -------------------------------------------------------- */
+.tabs {
+  display: flex;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+.tab-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-family-base);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  min-height: 44px;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+.tab-btn:hover { color: var(--color-primary-700); }
+.tab-btn.active { color: var(--color-primary-700); border-bottom-color: var(--color-primary-600); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
 .table-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -307,12 +359,17 @@ table.data-table { width: 100%; border-collapse: collapse; font-size: var(--fs-s
 /* --- Alertas -------------------------------------------------------- */
 .alert {
   display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
   gap: var(--space-3);
   padding: var(--space-4);
   border-radius: var(--radius-md);
   font-size: var(--fs-sm);
   border: 1px solid transparent;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
+.alert > p { flex: 1 1 100%; min-width: 0; margin: 0; }
 .alert-success { background: var(--color-success-bg); color: var(--color-primary-800); border-color: var(--color-primary-200); }
 .alert-warning { background: var(--color-warning-bg); color: #7a5313; border-color: #f0d19c; }
 .alert-danger  { background: var(--color-danger-bg); color: #7a2323; border-color: #eab8b8; }
@@ -411,6 +468,7 @@ table.data-table { width: 100%; border-collapse: collapse; font-size: var(--fs-s
   flex-shrink: 0;
 }
 .avatar-lg { width: 64px; height: 64px; font-size: var(--fs-lg); }
+.avatar-foto { object-fit: cover; background: var(--color-primary-100); }
 
 /* --- Iconos de mapa (Leaflet) -------------------------------------------------------- */
 .icono-camion-mapa { font-size: 1.6rem; text-align: center; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35)); }
@@ -420,4 +478,160 @@ table.data-table { width: 100%; border-collapse: collapse; font-size: var(--fs-s
   width: 44px; height: 44px;
   object-fit: contain;
   flex-shrink: 0;
+}
+
+/* --- Zona de carga de archivos (utils/uploadZone.js) --------------------------
+   Reemplaza el <input type="file"> básico del navegador por un componente de
+   "drop zone": click/touch o arrastrar-soltar, progreso y estado completado
+   con miniatura + opción de eliminar. Usado en reportar incidencia (ciudadano
+   y operador) y foto de perfil (ciudadano y operador). ------------------------ */
+.upload-zone-wrapper { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-6) var(--space-4);
+  border: 2px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-muted);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.upload-zone:hover, .upload-zone:focus-visible {
+  border-color: var(--color-primary-400);
+  background: var(--color-primary-50);
+}
+.upload-zone.dragover {
+  border-color: var(--color-primary-500);
+  background: var(--color-primary-50);
+}
+.upload-zone-input {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+.upload-zone-icon { font-size: 2.25rem; line-height: 1; color: var(--color-primary-600); }
+.upload-zone-texto-principal { margin: var(--space-2) 0 0; font-weight: var(--fw-semibold); font-size: var(--fs-sm); color: var(--color-text-primary); }
+.upload-zone-texto-secundario { margin: 0; font-size: var(--fs-xs); color: var(--color-text-muted); }
+
+/* "Arrastra o haz clic" en escritorio, "Toca para subir" en celular/tablet táctil. */
+.upload-zone-texto-touch { display: none; }
+.upload-zone-texto-desktop { display: inline; }
+@media (pointer: coarse) {
+  .upload-zone-texto-touch { display: inline; }
+  .upload-zone-texto-desktop { display: none; }
+}
+
+/* Fila de progreso mientras se sube/procesa el archivo */
+.upload-zone-progreso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.upload-zone-progreso-info { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); font-size: var(--fs-sm); }
+.upload-zone-progreso-nombre { font-weight: var(--fw-medium); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.upload-zone-progreso-tamano { color: var(--color-text-muted); font-size: var(--fs-xs); flex-shrink: 0; }
+.upload-zone-barra { width: 100%; height: 8px; border-radius: var(--radius-full); background: var(--color-surface-muted); overflow: hidden; position: relative; }
+.upload-zone-barra-fill {
+  height: 100%; width: 0%;
+  background: var(--color-primary-500);
+  border-radius: var(--radius-full);
+  transition: width 0.2s ease;
+}
+/* Progreso indeterminado (modo diferido, sin backend real que reporte %) */
+.upload-zone-barra-fill.indeterminado {
+  position: absolute; top: 0; left: 0;
+  width: 40% !important;
+  animation: upload-zone-indeterminado 1.1s ease-in-out infinite;
+}
+@keyframes upload-zone-indeterminado {
+  0% { left: -40%; }
+  100% { left: 100%; }
+}
+
+/* Archivo ya subido: miniatura (si es imagen) + nombre + hace cuánto + check + eliminar */
+.upload-zone-completado {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.upload-zone-thumb {
+  width: 56px; height: 56px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-surface-muted);
+}
+.upload-zone-check { color: var(--color-success); font-size: var(--fs-lg); flex-shrink: 0; }
+.upload-zone-item-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.upload-zone-item-nombre { font-size: var(--fs-sm); font-weight: var(--fw-medium); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.upload-zone-item-tiempo { font-size: var(--fs-xs); color: var(--color-text-muted); }
+.upload-zone-eliminar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-md);
+  flex-shrink: 0;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.upload-zone-eliminar:hover { background: var(--color-danger-bg); color: var(--color-danger); }
+
+/* --- Móvil (375px-414px): área táctil mínima de 44x44px en botones/controles,
+   y contenedores que no deben desbordar el ancho de un celular. ------------- */
+@media (max-width: 640px) {
+  .btn, .btn-sm, .btn-lg, .icon-btn, .pagination button, .tab-btn, .password-toggle {
+    min-height: 44px;
+  }
+  .icon-btn { width: 44px; height: 44px; }
+  .btn-sm { padding: 0.6rem 0.9rem; }
+
+  .form-check { min-height: 44px; align-items: center; }
+  .form-check input[type="checkbox"], .form-check input[type="radio"] {
+    width: 22px; height: 22px;
+  }
+
+  .upload-zone-eliminar { width: 44px; height: 44px; }
+  .upload-zone { padding: var(--space-5) var(--space-3); }
+
+  /* El toast-container usa max-width:360px + right:24px, que se sale del
+     viewport en celulares angostos (320px-414px): en móvil ocupa el ancho
+     completo con márgenes, en vez de un ancho fijo. */
+  .toast-container {
+    left: var(--space-3);
+    right: var(--space-3);
+    top: var(--space-3);
+    max-width: none;
+  }
+
+  .modal { padding: var(--space-4); }
+  .modal-actions { flex-wrap: wrap; }
+  .modal-actions .btn { flex: 1 1 auto; }
+
+  /* Los filtros de tablas (admin/ciudadano) traen anchos fijos en línea
+     (ej. style="width:220px") pensados para escritorio: en celular ocupan
+     el ancho completo, uno debajo del otro, en vez de quedar apretados. */
+  .table-toolbar { flex-direction: column; align-items: stretch; }
+  .table-filters { flex-direction: column; }
+  .table-filters .form-control { width: 100% !important; }
 }

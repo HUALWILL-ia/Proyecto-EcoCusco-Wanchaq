@@ -11,9 +11,6 @@
     return;
   }
 
-  const correoDestino = document.getElementById('correoDestino');
-  correoDestino.textContent = enmascararCorreo(pendiente.correo);
-
   mostrarAvisoEnvio();
 
   const digits = Array.from(document.querySelectorAll('.otp-digit'));
@@ -88,7 +85,7 @@
 
   function mostrarAvisoEnvio() {
     const caja = document.getElementById('cajaCodigoDemo');
-    caja.innerHTML = `Enviamos un código de 6 dígitos por correo electrónico a <strong>${enmascararCorreo(pendiente.correo)}</strong>. Revisa tu bandeja de entrada (y spam) e ingrésalo a continuación.`;
+    caja.innerHTML = `<p class="text-center mb-0">Enviamos un código de 6 dígitos a <strong>${enmascararCorreo(pendiente.correo)}</strong>. Revisa tu bandeja de entrada y spam, e ingrésalo a continuación.</p>`;
   }
 
   function enmascararCorreo(correo) {

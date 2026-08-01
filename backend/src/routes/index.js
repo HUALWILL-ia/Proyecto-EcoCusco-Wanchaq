@@ -17,6 +17,7 @@ const incidenciasRoutes = require('./incidencias.routes');
 const notificacionesRoutes = require('./notificaciones.routes');
 const reportesRoutes = require('./reportes.routes');
 const auditoriaRoutes = require('./auditoria.routes');
+const dniRoutes = require('./dni.routes');
 
 const router = Router();
 
@@ -36,5 +37,6 @@ router.use('/incidencias', incidenciasRoutes);
 router.use('/notificaciones', notificacionesRoutes);
 router.use('/reportes', reportesRoutes);
 router.use('/auditoria', auditoriaRoutes);
+router.use('/dni', dniRoutes);
 
 module.exports = router;

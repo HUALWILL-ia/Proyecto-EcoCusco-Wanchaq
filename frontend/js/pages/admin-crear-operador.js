@@ -15,8 +15,8 @@
 
   async function cargarSelects() {
     try {
-      const [zonas, camiones] = await Promise.all([obtenerZonas(), getCamionesStorage()]);
-      zonas.forEach((z) => {
+      const [zonas, camiones] = await Promise.all([obtenerZonas(), obtenerCamionesDisponibles()]);
+      zonas.filter((z) => z.estado === 'activa').forEach((z) => {
         const opt = document.createElement('option');
         opt.value = z.id;
         opt.textContent = z.nombre;
@@ -28,6 +28,12 @@
         opt.textContent = `${c.placa} — ${c.modelo}`;
         selectCamion.appendChild(opt);
       });
+      if (camiones.length === 0) {
+        const opt = document.createElement('option');
+        opt.disabled = true;
+        opt.textContent = 'No hay camiones disponibles (todos ocupados o en mantenimiento)';
+        selectCamion.appendChild(opt);
+      }
     } catch (err) {
       mostrarToast('error', 'No se pudieron cargar zonas/camiones', err.message);
     }
@@ -75,16 +81,38 @@
     apellidos: document.getElementById('apellidos'),
     dni: document.getElementById('dni'),
     correo: document.getElementById('correo'),
+    telefono: document.getElementById('telefono'),
   };
   const errores = {
     nombres: document.getElementById('errorNombres'),
     apellidos: document.getElementById('errorApellidos'),
     dni: document.getElementById('errorDni'),
     correo: document.getElementById('errorCorreo'),
+    telefono: document.getElementById('errorTelefono'),
   };
 
-  campos.dni.addEventListener('input', () => {
+  const estadoBusquedaDni = document.getElementById('estadoBusquedaDni');
+
+  campos.dni.addEventListener('input', async () => {
     campos.dni.value = campos.dni.value.replace(/\D/g, '').slice(0, 8);
+    if (campos.dni.value.length !== 8) {
+      estadoBusquedaDni.textContent = '';
+      return;
+    }
+
+    estadoBusquedaDni.textContent = 'Buscando datos con RENIEC...';
+    try {
+      const datos = await consultarDni(campos.dni.value);
+      if (datos.nombres) campos.nombres.value = datos.nombres;
+      if (datos.apellidos) campos.apellidos.value = datos.apellidos;
+      estadoBusquedaDni.textContent = '✅ Nombres y apellidos autocompletados. Puedes corregirlos si es necesario.';
+    } catch (err) {
+      estadoBusquedaDni.textContent = `${err.message} (puedes seguir llenando el formulario manualmente).`;
+    }
+  });
+
+  campos.telefono.addEventListener('input', () => {
+    campos.telefono.value = campos.telefono.value.replace(/\D/g, '').slice(0, 9);
   });
 
   function limpiarErrores() {
@@ -113,7 +141,7 @@
       apellidos: campos.apellidos.value.trim(),
       dni: campos.dni.value.trim(),
       correo: campos.correo.value.trim(),
-      telefono: document.getElementById('telefono').value.trim(),
+      telefono: campos.telefono.value.trim(),
       zonaAsignada: document.getElementById('zonaAsignada').value || null,
       camionAsignado: document.getElementById('camionAsignado').value || null,
     };
@@ -131,6 +159,9 @@
 
     const vCorreo = validarCorreo(datos.correo);
     if (!vCorreo.valido) { marcarError('correo', vCorreo.mensaje); valido = false; }
+
+    const vTelefono = validarCelular(datos.telefono);
+    if (!vTelefono.valido) { marcarError('telefono', vTelefono.mensaje); valido = false; }
 
     if (!valido) return;
 

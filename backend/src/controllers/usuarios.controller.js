@@ -13,9 +13,38 @@ const ApiError = require('../utils/ApiError');
 const asyncHandler = require('../utils/asyncHandler');
 const generarPasswordTemporal = require('../utils/generarPasswordTemporal');
 const { enviarCorreo } = require('../config/mailer');
-const { plantillaCredencialesOperador } = require('../utils/emailTemplates');
+const { plantillaCredencialesOperador, plantillaCredencialesAdmin } = require('../utils/emailTemplates');
 
 const RONDAS_BCRYPT = 10;
+
+/**
+ * Valida que un camión pueda asignarse a un operador: debe existir, estar
+ * operativo (no en mantenimiento) y no tener ya otro operador distinto
+ * asignado. Lanza ApiError si algo falla; no hace nada si camionId es falsy.
+ * @returns {Promise<object|null>} el camión (para reutilizarlo, ej. la placa en mensajes)
+ */
+async function validarCamionParaOperador(camionId, operadorIdActual) {
+  if (!camionId) return null;
+
+  const camion = await camionesRepo.buscarPorId(camionId);
+  if (!camion) throw ApiError.badRequest('El camión seleccionado no existe.', 'CAMION_INVALIDO');
+  if (camion.estado !== 'operativo') {
+    throw ApiError.badRequest(`No se puede asignar el camión ${camion.placa}: está en mantenimiento.`, 'CAMION_NO_OPERATIVO');
+  }
+  if (camion.operadorAsignado && Number(camion.operadorAsignado) !== Number(operadorIdActual || 0)) {
+    throw ApiError.conflict(`El camión ${camion.placa} ya está asignado a otro operador.`, 'CAMION_OCUPADO');
+  }
+  return camion;
+}
+
+/**
+ * GET /api/usuarios/ciudadanos-por-zona/:zonaId (operador/admin) — ciudadanos
+ * activos de una zona, usado para identificar al vecino de una recolección.
+ */
+const ciudadanosPorZona = asyncHandler(async (req, res) => {
+  const ciudadanos = await usuariosRepo.listarCiudadanosPorZona(req.params.zonaId);
+  res.json({ success: true, data: ciudadanos.map(usuariosRepo.aPublico) });
+});
 
 /**
  * GET /api/usuarios (admin) — filtros: rol, estado, texto (nombre/dni/correo) + paginación
@@ -63,6 +92,11 @@ const crearOperador = asyncHandler(async (req, res) => {
     throw ApiError.conflict('Ya existe una cuenta registrada con este DNI.', 'DNI_DUPLICADO');
   }
 
+  // La zona activa la valida el trigger trg_validar_zona_usuarios al insertar
+  // (misma regla de negocio que ya usa el resto del sistema); el camión no
+  // tiene un trigger equivalente, así que se valida aquí en la aplicación.
+  await validarCamionParaOperador(camionAsignado);
+
   const passwordTemporal = generarPasswordTemporal();
   const passwordHash = await bcrypt.hash(passwordTemporal, RONDAS_BCRYPT);
 
@@ -83,6 +117,12 @@ const crearOperador = asyncHandler(async (req, res) => {
     debeCambiarPassword: true,
   });
 
+  // Sincroniza el lado inverso de la relación (camiones.operador_asignado_id)
+  // para que ambas tablas queden consistentes con la misma asignación.
+  if (camionAsignado) {
+    await camionesRepo.actualizar(camionAsignado, { operadorAsignado: nuevoOperador.id });
+  }
+
   await enviarCorreo({
     to: nuevoOperador.correo,
     subject: 'Tu cuenta de operador — EcoRutas Wanchaq',
@@ -97,6 +137,50 @@ const crearOperador = asyncHandler(async (req, res) => {
 });
 
 /**
+ * POST /api/usuarios/administradores (admin) — única vía para crear administradores.
+ * No existe auto-registro público para este rol, igual que con operadores.
+ */
+const crearAdministrador = asyncHandler(async (req, res) => {
+  const { nombres, apellidos, dni, correo, telefono } = req.body;
+
+  if (await usuariosRepo.existeCorreo(correo)) {
+    throw ApiError.conflict('Ya existe una cuenta registrada con este correo.', 'CORREO_DUPLICADO');
+  }
+  if (await usuariosRepo.existeDni(dni)) {
+    throw ApiError.conflict('Ya existe una cuenta registrada con este DNI.', 'DNI_DUPLICADO');
+  }
+
+  const passwordTemporal = generarPasswordTemporal();
+  const passwordHash = await bcrypt.hash(passwordTemporal, RONDAS_BCRYPT);
+
+  const nuevoAdmin = await usuariosRepo.crear({
+    rol: 'admin',
+    nombres,
+    apellidos,
+    dni: dni.trim(),
+    correo: correo.trim().toLowerCase(),
+    passwordHash,
+    telefono,
+    estado: 'activo',
+    creadoPor: req.user.sub,
+    requiere2FA: true,
+    debeCambiarPassword: true,
+  });
+
+  await enviarCorreo({
+    to: nuevoAdmin.correo,
+    subject: 'Tu cuenta de administrador — EcoRutas Wanchaq',
+    html: plantillaCredencialesAdmin(nuevoAdmin.nombres, nuevoAdmin.correo, passwordTemporal),
+  });
+
+  res.status(201).json({
+    success: true,
+    message: `Se creó la cuenta y se enviaron las credenciales a ${nuevoAdmin.correo}.`,
+    data: { usuario: usuariosRepo.aPublico(nuevoAdmin) },
+  });
+});
+
+/**
  * PUT /api/usuarios/:id (admin)
  */
 const actualizar = asyncHandler(async (req, res) => {
@@ -104,7 +188,10 @@ const actualizar = asyncHandler(async (req, res) => {
   const usuario = await usuariosRepo.buscarPorId(id);
   if (!usuario) throw ApiError.notFound('Usuario no encontrado.');
 
-  const camposPermitidos = ['nombres', 'apellidos', 'telefono', 'zonaAsignada', 'camionAsignado', 'zona', 'direccion'];
+  // La zona/camión de un operador se administran exclusivamente vía
+  // PUT /:id/asignacion (valida estado activo/operativo y conflictos de
+  // camión); no se aceptan aquí para no duplicar esa lógica sin validar.
+  const camposPermitidos = ['nombres', 'apellidos', 'telefono', 'zona', 'direccion'];
   const cambios = {};
   camposPermitidos.forEach((campo) => {
     if (req.body[campo] !== undefined) cambios[campo] = req.body[campo];
@@ -133,19 +220,40 @@ const cambiarEstado = asyncHandler(async (req, res) => {
 });
 
 /**
- * PUT /api/usuarios/:id/zona (admin) — reasigna zona a un ciudadano u operador
+ * PUT /api/usuarios/:id/asignacion (admin) — asigna/reasigna la zona de
+ * recolección y el camión de un operador. Único punto de entrada para este
+ * cambio: valida zona activa (vía trigger de BD) y camión operativo/sin
+ * conflicto, y mantiene sincronizado camiones.operador_asignado_id.
  */
-const asignarZona = asyncHandler(async (req, res) => {
+const asignarOperador = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { zona, zonaId } = req.body;
+  const { zonaId, camionId } = req.body;
 
   const usuario = await usuariosRepo.buscarPorId(id);
   if (!usuario) throw ApiError.notFound('Usuario no encontrado.');
+  if (usuario.rol !== 'operador') {
+    throw ApiError.badRequest('Solo se puede asignar zona y camión a una cuenta de operador.', 'ROL_INVALIDO');
+  }
 
-  const cambios = usuario.rol === 'operador' ? { zonaAsignada: zonaId || zona } : { zona };
+  const camionAnterior = usuario.camionAsignado;
+  if (camionId !== undefined) await validarCamionParaOperador(camionId, id);
+
+  const cambios = {};
+  if (zonaId !== undefined) cambios.zonaAsignada = zonaId || null;
+  if (camionId !== undefined) cambios.camionAsignado = camionId || null;
+
   const actualizado = await usuariosRepo.actualizar(id, cambios);
 
-  res.json({ success: true, message: 'Zona reasignada correctamente.', data: { usuario: usuariosRepo.aPublico(actualizado) } });
+  // Sincroniza el lado inverso de la relación: libera el camión anterior (si
+  // cambió) y marca el nuevo como asignado a este operador.
+  if (camionId !== undefined && camionAnterior && Number(camionAnterior) !== Number(camionId || 0)) {
+    await camionesRepo.actualizar(camionAnterior, { operadorAsignado: null });
+  }
+  if (camionId) {
+    await camionesRepo.actualizar(camionId, { operadorAsignado: Number(id) });
+  }
+
+  res.json({ success: true, message: 'Zona y camión actualizados correctamente.', data: { usuario: usuariosRepo.aPublico(actualizado) } });
 });
 
 /**
@@ -168,11 +276,13 @@ const obtenerPerfil = asyncHandler(async (req, res) => {
  * PUT /api/usuarios/perfil
  */
 const actualizarPerfil = asyncHandler(async (req, res) => {
-  const camposPermitidos = ['telefono', 'zona', 'direccion'];
+  const camposPermitidos = ['telefono', 'zona', 'direccion', 'latitud', 'longitud'];
   const cambios = {};
   camposPermitidos.forEach((campo) => {
     if (req.body[campo] !== undefined) cambios[campo] = req.body[campo];
   });
+  if (cambios.latitud !== undefined) cambios.latitud = cambios.latitud === null || cambios.latitud === '' ? null : Number(cambios.latitud);
+  if (cambios.longitud !== undefined) cambios.longitud = cambios.longitud === null || cambios.longitud === '' ? null : Number(cambios.longitud);
 
   const actualizado = await usuariosRepo.actualizar(req.user.sub, cambios);
   res.json({ success: true, message: 'Perfil actualizado correctamente.', data: { usuario: usuariosRepo.aPublico(actualizado) } });
@@ -198,13 +308,28 @@ const cambiarPasswordPerfil = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Contraseña actualizada correctamente.' });
 });
 
+/**
+ * PUT /api/usuarios/perfil/foto (cualquier rol autenticado)
+ */
+const subirFotoPerfil = asyncHandler(async (req, res) => {
+  if (!req.file) throw ApiError.badRequest('Selecciona una imagen para subir.', 'ARCHIVO_REQUERIDO');
+
+  const fotoPerfil = `/uploads/${req.file.filename}`;
+  const actualizado = await usuariosRepo.actualizar(req.user.sub, { fotoPerfil });
+
+  res.json({ success: true, message: 'Foto de perfil actualizada correctamente.', data: { usuario: usuariosRepo.aPublico(actualizado) } });
+});
+
 module.exports = {
   listar,
+  ciudadanosPorZona,
   crearOperador,
+  crearAdministrador,
   actualizar,
   cambiarEstado,
-  asignarZona,
+  asignarOperador,
   obtenerPerfil,
   actualizarPerfil,
   cambiarPasswordPerfil,
+  subirFotoPerfil,
 };

@@ -16,6 +16,7 @@
       document.getElementById('avatarAdmin').textContent = (usuario.nombres[0] + usuario.apellidos[0]).toUpperCase();
       document.getElementById('nombreAdmin').textContent = `${usuario.nombres} ${usuario.apellidos}`;
       document.getElementById('cargoAdmin').textContent = usuario.cargo;
+      document.getElementById('avisoPasswordTemporal').style.display = usuario.debeCambiarPassword ? 'flex' : 'none';
 
       // Actividad de acceso simulada (Fase 2: aún no hay un log de auditoría real en el backend).
       const accesos = [
@@ -72,6 +73,14 @@
 
     let valido = true;
 
+    const vActual = validarCampoObligatorio(campos.passwordActual.value);
+    if (!vActual.valido) {
+      campos.passwordActual.classList.add('is-invalid');
+      errores.passwordActual.textContent = 'Ingresa tu contraseña actual.';
+      errores.passwordActual.classList.add('show');
+      valido = false;
+    }
+
     const vNueva = validarPassword(campos.passwordNueva.value);
     if (!vNueva.valido) {
       campos.passwordNueva.classList.add('is-invalid');
@@ -96,6 +105,7 @@
         passwordNueva: campos.passwordNueva.value,
       });
       form.reset();
+      document.getElementById('avisoPasswordTemporal').style.display = 'none';
       mostrarToast('success', 'Contraseña actualizada', 'Tu contraseña se cambió correctamente.');
     } catch (err) {
       campos.passwordActual.classList.add('is-invalid');

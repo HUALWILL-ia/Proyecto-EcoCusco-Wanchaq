@@ -91,6 +91,7 @@ const NAV_ADMIN = [
   { grupo: 'Gestión', items: [
     { href: 'usuarios.html', icono: '👥', texto: 'Usuarios' },
     { href: 'crear-operador.html', icono: '➕', texto: 'Crear operador' },
+    { href: 'crear-admin.html', icono: '🛡️', texto: 'Crear administrador' },
     { href: 'zonas.html', icono: '🗺️', texto: 'Zonas' },
     { href: 'tipos-residuo.html', icono: '🗑️', texto: 'Tipos de residuo' },
     { href: 'camiones.html', icono: '🚛', texto: 'Camiones' },
@@ -127,8 +128,8 @@ const NAV_CIUDADANO = [
   { href: 'dashboard.html', texto: 'Dashboard' },
   { href: 'horarios.html', texto: 'Horarios' },
   { href: 'seguimiento-gps.html', texto: 'Seguimiento GPS' },
-  { href: 'incidencias.html', texto: 'Reportar incidencia' },
-  { href: 'historial-incidencias.html', texto: 'Mis incidencias' },
+  { href: 'historial-reciclaje.html', texto: 'Historial de reciclaje' },
+  { href: 'incidencias.html', texto: 'Incidencias' },
   { href: 'notificaciones.html', texto: 'Notificaciones' },
 ];
 
@@ -149,6 +150,20 @@ function iniciales(usuario) {
   const n = (usuario.nombres || '').trim()[0] || '';
   const a = (usuario.apellidos || '').trim()[0] || '';
   return (n + a).toUpperCase() || 'EW';
+}
+
+/**
+ * HTML del avatar de un usuario: su foto de perfil si ya subió una, o sus
+ * iniciales dentro de un círculo de color (comportamiento previo) si no.
+ * @param {object} usuario
+ * @param {string} [claseExtra] - clases CSS adicionales para el contenedor
+ * @param {string} [estiloExtra] - estilos inline adicionales (ej. tamaño en navbar)
+ */
+function avatarHtml(usuario, claseExtra = '', estiloExtra = '') {
+  if (usuario.fotoPerfil) {
+    return `<img src="${urlArchivo(usuario.fotoPerfil)}" alt="Foto de perfil" class="avatar avatar-foto ${claseExtra}" style="${estiloExtra}">`;
+  }
+  return `<div class="avatar ${claseExtra}" style="${estiloExtra}">${iniciales(usuario)}</div>`;
 }
 
 /**
@@ -184,7 +199,7 @@ function construirSidebar(rol, sesion) {
     ${navHtml}
     <div class="sidebar-footer">
       <div class="sidebar-user">
-        <div class="avatar">${iniciales(sesion.usuario)}</div>
+        ${avatarHtml(sesion.usuario)}
         <div class="sidebar-user-info">
           <strong>${sesion.usuario.nombres} ${sesion.usuario.apellidos}</strong>
           <span>${sesion.usuario.cargo || (rol === 'admin' ? 'Administrador' : 'Operador')}</span>
@@ -225,7 +240,7 @@ function construirNavbarCiudadano(sesion) {
       <ul class="navbar-links" id="navbarLinks">${linksHtml}</ul>
       <div class="navbar-actions">
         <a href="perfil.html" class="navbar-user">
-          <div class="avatar" style="width:28px;height:28px;font-size:0.7rem;">${iniciales(sesion.usuario)}</div>
+          ${avatarHtml(sesion.usuario, '', 'width:28px;height:28px;font-size:0.7rem;')}
           <span class="navbar-user-name">${sesion.usuario.nombres}</span>
         </a>
         <button class="btn btn-outline btn-sm" id="btnCerrarSesion" style="border-color:rgba(255,255,255,0.4); color:#fff;">Salir</button>
@@ -273,15 +288,14 @@ function footerInstitucionalHTML() {
         <div class="footer-title">Enlaces</div>
         <ul>
           <li><a href="#">Preguntas frecuentes</a></li>
-          <li><a href="#">Términos y condiciones</a></li>
-          <li><a href="#">Política de privacidad</a></li>
+          <li><a href="${rutaBaseRelativa()}politicas-privacidad.html#terminos">Términos y condiciones</a></li>
+          <li><a href="${rutaBaseRelativa()}politicas-privacidad.html#privacidad">Política de privacidad</a></li>
           <li><a href="#">Libro de reclamaciones</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
       <span>© ${new Date().getFullYear()} Municipalidad Distrital de Wanchaq — Gerencia de Gestión Ambiental. Todos los derechos reservados.</span>
-      <span>Proyecto EcoRutas Wanchaq — Fase 1 (Interfaz de demostración)</span>
     </div>
   `;
 }
@@ -326,6 +340,100 @@ function badgeEstadoRuta(estado) {
   const item = mapa[estado] || { clase: 'badge-neutral', texto: estado };
   return `<span class="badge ${item.clase}">${item.texto}</span>`;
 }
+
+/* ---------------------------------------------------------------------- */
+/* Polígonos territoriales de zonas sobre mapas Leaflet                    */
+/* ---------------------------------------------------------------------- */
+
+const PALETA_ZONAS = ['#2a6fb0', '#2c9a54', '#d98c1f', '#a0459c', '#c0392b', '#16a394', '#7d5ba6', '#c77b28', '#3f6b3f'];
+
+/**
+ * Dibuja el polígono territorial de cada zona activa sobre un mapa Leaflet ya
+ * inicializado. La zona indicada en `zonaDestacadaId` se resalta con un borde
+ * más grueso y color propio (usado para "mi zona" en ciudadano/operador, o la
+ * zona del camión seleccionado en el admin).
+ * @param {L.Map} mapa
+ * @param {Array} zonas - zonas con {id, nombre, horarioRecoleccion, estado, poligono}
+ * @param {{zonaDestacadaId?: number|string|null}} opciones
+ * @returns {{capas: L.Polygon[], leyenda: Array<{id, nombre, color, destacada}>}}
+ */
+function dibujarPoligonosZonas(mapa, zonas, opciones = {}) {
+  const { zonaDestacadaId = null } = opciones;
+  const capas = [];
+  const leyenda = [];
+
+  zonas
+    .filter((z) => z.estado === 'activa' && Array.isArray(z.poligono) && z.poligono.length >= 3)
+    .forEach((zona, idx) => {
+      const esDestacada = zonaDestacadaId !== null && zonaDestacadaId !== undefined && String(zona.id) === String(zonaDestacadaId);
+      const color = esDestacada ? '#1f7d43' : PALETA_ZONAS[idx % PALETA_ZONAS.length];
+      const latlngs = zona.poligono.map((p) => [p.lat, p.lng]);
+
+      const capa = L.polygon(latlngs, {
+        color,
+        weight: esDestacada ? 4 : 2,
+        fillColor: color,
+        fillOpacity: esDestacada ? 0.22 : 0.1,
+      }).addTo(mapa);
+      capa.bindPopup(`<strong>${zona.nombre}</strong><br>${zona.horarioRecoleccion || 'Horario no definido'}`);
+
+      capas.push(capa);
+      leyenda.push({ id: zona.id, nombre: zona.nombre, color, destacada: esDestacada });
+    });
+
+  return { capas, leyenda };
+}
+
+/**
+ * Pinta una leyenda simple (chips de color + nombre) para los polígonos
+ * dibujados con dibujarPoligonosZonas().
+ */
+function renderLeyendaZonas(contenedor, leyenda) {
+  if (!contenedor) return;
+  if (leyenda.length === 0) {
+    contenedor.innerHTML = '<span class="text-muted">Aún no hay zonas con área definida en el mapa.</span>';
+    return;
+  }
+  contenedor.innerHTML = leyenda.map((item) => `
+    <span class="badge" style="background:${item.color}22; color:${item.color}; border:1px solid ${item.color}; ${item.destacada ? 'font-weight:700;' : ''}">
+      ${item.destacada ? '📍 ' : ''}${item.nombre}
+    </span>
+  `).join(' ');
+}
+
+/* ---------------------------------------------------------------------- */
+/* Mostrar/ocultar contraseña — se aplica automáticamente a todo input      */
+/* type="password" que exista en la página al cargar (login, registro,     */
+/* perfil, creación de cuentas, etc.), sin necesidad de tocar cada pantalla.*/
+/* ---------------------------------------------------------------------- */
+
+const ICONO_OJO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>';
+const ICONO_OJO_TACHADO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.7 18.7 0 0 1-2.16 3.19m-3.35 2.42A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.7 18.7 0 0 1 4.22-5.94M9.88 9.88a3 3 0 0 0 4.24 4.24"/><path d="M1 1l22 22"/></svg>';
+
+function activarTogglesPassword() {
+  document.querySelectorAll('input[type="password"]').forEach((input) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'password-field';
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+
+    const boton = document.createElement('button');
+    boton.type = 'button';
+    boton.className = 'password-toggle';
+    boton.setAttribute('aria-label', 'Mostrar contraseña');
+    boton.innerHTML = ICONO_OJO;
+    wrapper.appendChild(boton);
+
+    boton.addEventListener('click', () => {
+      const estabaOculta = input.type === 'password';
+      input.type = estabaOculta ? 'text' : 'password';
+      boton.innerHTML = estabaOculta ? ICONO_OJO_TACHADO : ICONO_OJO;
+      boton.setAttribute('aria-label', estabaOculta ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', activarTogglesPassword);
 
 /**
  * Activa el botón hamburguesa del topbar para abrir/cerrar el sidebar en móvil.
@@ -381,6 +489,9 @@ window.formatearFecha = formatearFecha;
 window.formatearFechaHora = formatearFechaHora;
 window.badgeEstadoIncidencia = badgeEstadoIncidencia;
 window.badgeEstadoRuta = badgeEstadoRuta;
+window.dibujarPoligonosZonas = dibujarPoligonosZonas;
+window.renderLeyendaZonas = renderLeyendaZonas;
+window.avatarHtml = avatarHtml;
 
 /* ---------------------------------------------------------------------- */
 /* GPS — distancia en línea recta, ETA simple y "hace cuánto" (Fase 3)     */

@@ -67,11 +67,60 @@
     horario: document.getElementById('errorHorario'),
   };
 
+  // --- Editor de polígono territorial (Leaflet.draw) ---
+  let mapaZona = null;
+  let capaDibujoZona = null;
+
+  function inicializarMapaZona(poligonoExistente) {
+    if (mapaZona) { mapaZona.remove(); mapaZona = null; }
+
+    const tieneExistente = Array.isArray(poligonoExistente) && poligonoExistente.length >= 3;
+    const centro = tieneExistente ? [poligonoExistente[0].lat, poligonoExistente[0].lng] : [-13.529, -71.955];
+
+    mapaZona = L.map('mapaZonaPoligono').setView(centro, tieneExistente ? 15 : 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 18,
+    }).addTo(mapaZona);
+
+    capaDibujoZona = new L.FeatureGroup().addTo(mapaZona);
+
+    if (tieneExistente) {
+      const capaExistente = L.polygon(poligonoExistente.map((p) => [p.lat, p.lng]));
+      capaDibujoZona.addLayer(capaExistente);
+      mapaZona.fitBounds(capaExistente.getBounds());
+    }
+
+    const controlDibujo = new L.Control.Draw({
+      draw: { polygon: true, rectangle: true, polyline: false, circle: false, circlemarker: false, marker: false },
+      edit: { featureGroup: capaDibujoZona },
+    });
+    mapaZona.addControl(controlDibujo);
+
+    // Solo se conserva un polígono por zona: cada trazo nuevo reemplaza al anterior.
+    mapaZona.on(L.Draw.Event.CREATED, (ev) => {
+      capaDibujoZona.clearLayers();
+      capaDibujoZona.addLayer(ev.layer);
+    });
+  }
+
+  function coordenadasDibujadas() {
+    if (!capaDibujoZona) return null;
+    const capas = capaDibujoZona.getLayers();
+    if (capas.length === 0) return null;
+    return capas[0].getLatLngs()[0].map((ll) => ({ lat: Number(ll.lat.toFixed(6)), lng: Number(ll.lng.toFixed(6)) }));
+  }
+
+  document.getElementById('btnBorrarPoligono').addEventListener('click', () => {
+    if (capaDibujoZona) capaDibujoZona.clearLayers();
+  });
+
   document.getElementById('btnNuevaZona').addEventListener('click', () => {
     form.reset();
     document.getElementById('zonaId').value = '';
     document.getElementById('tituloModalZona').textContent = 'Nueva zona';
     abrirModal('modalZona');
+    setTimeout(() => inicializarMapaZona(null), 50); // el modal debe estar visible antes de inicializar Leaflet
   });
 
   function abrirFormularioEdicion(id) {
@@ -85,6 +134,7 @@
     document.getElementById('contenedores').value = zona.contenedores;
     document.getElementById('tituloModalZona').textContent = `Editar ${zona.nombre}`;
     abrirModal('modalZona');
+    setTimeout(() => inicializarMapaZona(zona.poligono), 50);
   }
 
   async function eliminarZonaExistente(id) {
@@ -127,8 +177,12 @@
     };
 
     try {
-      if (idExistente) await actualizarZona(idExistente, datos);
-      else await crearZona(datos);
+      const zonaGuardada = idExistente ? await actualizarZona(idExistente, datos) : await crearZona(datos);
+
+      const poligono = coordenadasDibujadas();
+      if (poligono) {
+        await actualizarPoligonoZona(zonaGuardada.id, poligono);
+      }
 
       cerrarModal('modalZona');
       await cargar();

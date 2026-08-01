@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crear cuenta de administrador — EcoRutas Wanchaq</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/base.css">
+<link rel="stylesheet" href="../../css/components.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<link rel="icon" type="image/png" href="../../assets/logos/Logo_solo_hoja.png">
+</head>
+<body>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="flex items-center gap-3">
+        <button class="icon-btn sidebar-toggle" id="btnSidebarToggle" aria-label="Abrir menú">☰</button>
+        <div class="topbar-title">
+          <h1>Crear cuenta de administrador</h1>
+          <span>Único punto de alta de cuentas de administración del sistema</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" aria-label="Notificaciones">🔔</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="card" style="max-width:720px; margin:0 auto;">
+        <div class="card-header">
+          <div>
+            <h2>Nuevo administrador</h2>
+            <p class="text-muted mb-0">Solo otro administrador puede registrar esta cuenta. No existe auto-registro para este rol.</p>
+          </div>
+        </div>
+
+        <form id="formCrearAdmin" novalidate>
+          <div class="dashboard-grid" style="grid-template-columns:1fr 1fr; margin-top:0;">
+            <div class="form-group">
+              <label class="form-label" for="nombres">Nombres <span class="required">*</span></label>
+              <input type="text" id="nombres" class="form-control" placeholder="Ej. Rosa Elvira">
+              <div class="form-error" id="errorNombres"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="apellidos">Apellidos <span class="required">*</span></label>
+              <input type="text" id="apellidos" class="form-control" placeholder="Ej. Quispe Mamani">
+              <div class="form-error" id="errorApellidos"></div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid" style="grid-template-columns:1fr 1fr; margin-top:0;">
+            <div class="form-group">
+              <label class="form-label" for="dni">DNI (8 dígitos) <span class="required">*</span></label>
+              <input type="text" id="dni" class="form-control" maxlength="8" inputmode="numeric" placeholder="12345678">
+              <div class="form-error" id="errorDni"></div>
+              <div class="form-hint" id="estadoBusquedaDni"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="telefono">Celular <span class="required">*</span></label>
+              <input type="text" id="telefono" class="form-control" maxlength="9" inputmode="numeric" placeholder="9XXXXXXXX">
+              <div class="form-error" id="errorTelefono"></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="correo">Correo institucional <span class="required">*</span></label>
+            <input type="email" id="correo" class="form-control" placeholder="usuario@munwanchaq.gob.pe">
+            <div class="form-hint">Recibirá sus credenciales de acceso en este correo electrónico.</div>
+            <div class="form-error" id="errorCorreo"></div>
+          </div>
+
+          <div class="alert alert-info" style="font-size:var(--fs-sm);">
+            <p class="mb-0">Al crear la cuenta se generará una contraseña temporal y se enviará un correo con las credenciales de acceso. El administrador deberá iniciar sesión con verificación en dos pasos (2FA) y cambiar su contraseña.</p>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg" id="btnCrearAdmin">
+            <span id="btnCrearAdminTexto">Crear cuenta de administrador</span>
+          </button>
+        </form>
+      </div>
+
+      <div class="card mt-4" style="max-width:720px; margin:var(--space-5) auto 0;">
+        <div class="card-header"><h3 class="mb-0">Administradores registrados</h3></div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr><th>Nombre</th><th>DNI</th><th>Correo</th><th>Estado</th></tr>
+            </thead>
+            <tbody id="tablaAdministradores"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal-overlay" id="modalCredenciales">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✅ Cuenta creada exitosamente</h3>
+      <button class="modal-close" onclick="cerrarModal('modalCredenciales')">&times;</button>
+    </div>
+    <p>Se creó la cuenta del administrador y se envió un correo con sus credenciales de acceso:</p>
+    <div class="alert alert-success" style="font-family:monospace; font-size:var(--fs-sm);" id="cajaCredenciales"></div>
+    <p class="form-hint">Por seguridad, la contraseña temporal no se muestra en pantalla: solo llega al correo del administrador.</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="cerrarModal('modalCredenciales')">Entendido</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../js/mocks/dni.mock.js"></script>
+<script src="../../js/mocks/zonas.mock.js"></script>
+<script src="../../js/mocks/usuarios.mock.js"></script>
+<script src="../../js/mocks/residuos.mock.js"></script>
+<script src="../../js/mocks/camiones.mock.js"></script>
+<script src="../../js/mocks/rutas.mock.js"></script>
+<script src="../../js/mocks/incidencias.mock.js"></script>
+<script src="../../js/mocks/notificaciones.mock.js"></script>
+<script src="../../js/utils/api.js"></script>
+<script src="../../js/utils/storage.js"></script>
+<script src="../../js/utils/validaciones.js"></script>
+<script src="../../js/utils/auth-simulado.js"></script>
+<script src="../../js/utils/ui.js"></script>
+<script src="../../js/pages/admin-crear-admin.js"></script>
+</body>
+</html>

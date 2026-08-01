@@ -68,6 +68,14 @@
   const btn = document.getElementById('btnEnviar');
   const btnTexto = document.getElementById('btnEnviarTexto');
 
+  const zonaCargaFoto = crearZonaCarga(document.getElementById('zonaCargaFotoIncidencia'), {
+    accept: 'image/*',
+    capture: 'environment',
+    maxSizeMB: 5,
+    esImagen: true,
+    textoFormatos: 'JPG, PNG o WEBP · máx. 5MB',
+  });
+
   form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     Object.keys(campos).forEach((k) => {
@@ -92,15 +100,19 @@
     btnTexto.innerHTML = '<span class="spinner"></span> Enviando...';
 
     try {
-      await crearIncidencia({
-        tipo: campos.tipo.value,
-        descripcion: campos.descripcion.value.trim(),
-        zona: selectZona.value,
-        direccion: campos.direccion.value.trim(),
-        prioridad: document.getElementById('prioridad').value,
-      });
+      const datosFormulario = new FormData();
+      datosFormulario.append('tipo', campos.tipo.value);
+      datosFormulario.append('descripcion', campos.descripcion.value.trim());
+      datosFormulario.append('zona', selectZona.value);
+      datosFormulario.append('direccion', campos.direccion.value.trim());
+      datosFormulario.append('prioridad', document.getElementById('prioridad').value);
+      const archivoFoto = zonaCargaFoto.obtenerArchivo();
+      if (archivoFoto) datosFormulario.append('foto', archivoFoto);
+
+      await crearIncidencia(datosFormulario);
 
       form.reset();
+      zonaCargaFoto.limpiar();
       renderFeed();
       mostrarToast('success', 'Reporte enviado', 'Tu incidencia fue registrada y notificada a la coordinación.');
     } catch (err) {

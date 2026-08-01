@@ -10,6 +10,46 @@
   construirSidebar('operador', sesion);
   activarSidebarToggle();
 
+  // GPS: solo puede haber una transmisión activa a la vez (un operador conduce
+  // un solo camión), así que el watchId y la ruta que lo activó son globales.
+  let watchId = null;
+  let rutaTransmitiendoId = null;
+  // Controla, por ruta, si "Iniciar ruta" ya fue presionado en esta sesión de
+  // la página (o si la ruta ya venía "en_progreso" al cargar): evita que
+  // "Finalizar ruta" quede habilitado sin haber iniciado antes.
+  const rutasIniciadas = new Set();
+
+  function activarGpsParaRuta(rutaId) {
+    if (!('geolocation' in navigator)) {
+      mostrarToast('error', 'GPS no disponible', 'Tu navegador no soporta geolocalización.');
+      return;
+    }
+    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+
+    rutaTransmitiendoId = rutaId;
+    watchId = navigator.geolocation.watchPosition(
+      async (posicion) => {
+        const { latitude: lat, longitude: lng, speed } = posicion.coords;
+        const velocidadKmh = speed !== null && speed !== undefined ? Math.round(speed * 3.6 * 10) / 10 : null;
+        try {
+          await actualizarGPS(lat, lng, { velocidad: velocidadKmh, rutaId: rutaTransmitiendoId });
+        } catch (err) {
+          // Silencioso: no interrumpe al operador en campo por un envío puntual fallido.
+        }
+      },
+      (error) => {
+        mostrarToast('error', 'No se pudo transmitir tu ubicación', error.message || 'Verifica el permiso de ubicación.');
+      },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+    );
+  }
+
+  function detenerGps() {
+    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+    rutaTransmitiendoId = null;
+  }
+
   async function render() {
     const contenedor = document.getElementById('listaRutas');
     contenedor.innerHTML = `<div class="card"><div class="loading-overlay"><span class="spinner"></span> Cargando rutas...</div></div>`;
@@ -27,8 +67,20 @@
       return;
     }
 
-    contenedor.innerHTML = rutas.map((ruta) => `
-      <div class="card">
+    rutas.forEach((ruta) => {
+      if (ruta.estado === 'en_progreso' || ruta.estado === 'completada') rutasIniciadas.add(ruta.id);
+    });
+
+    // Progreso: se reutiliza tal cual el que ya calcula el backend
+    // (puntos.completado / puntos.total, ver rutas.controller.js), por ser
+    // el dato que ya existe en el modelo — no requiere agregar nada nuevo.
+    contenedor.innerHTML = rutas.map((ruta) => {
+      const iniciada = rutasIniciadas.has(ruta.id);
+      const finalizada = ruta.estado === 'completada';
+      const transmitiendo = rutaTransmitiendoId === ruta.id;
+
+      return `
+      <div class="card" data-ruta-id="${ruta.id}">
         <div class="card-header">
           <div>
             <h2 class="mb-0">${ruta.nombre}</h2>
@@ -52,10 +104,55 @@
             </tbody>
           </table>
         </div>
-        <a href="registro-recoleccion.html" class="btn btn-primary btn-sm mt-3">Registrar recolección</a>
+        <div class="flex items-center gap-2 mt-3" style="flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" data-accion="iniciar" data-id="${ruta.id}" ${iniciada || finalizada ? 'disabled' : ''}>▶️ Iniciar ruta</button>
+          <button class="btn btn-danger btn-sm" data-accion="finalizar" data-id="${ruta.id}" ${!iniciada || finalizada ? 'disabled' : ''}>⏹️ Finalizar ruta</button>
+          <a href="registro-recoleccion.html" class="btn btn-primary btn-sm">Registrar recolección</a>
+          ${transmitiendo ? '<span class="badge badge-success">📍 GPS activo — transmitiendo ubicación</span>' : ''}
+        </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
+
+    contenedor.querySelectorAll('button[data-accion="iniciar"]').forEach((boton) => {
+      boton.addEventListener('click', async () => {
+        const id = Number(boton.dataset.id);
+        boton.disabled = true;
+        boton.innerHTML = '<span class="spinner"></span> Iniciando...';
+        try {
+          await iniciarRuta(id);
+          rutasIniciadas.add(id);
+          activarGpsParaRuta(id);
+          mostrarToast('success', 'Ruta iniciada', 'GPS activo: tu ubicación se transmite en tiempo real.');
+        } catch (err) {
+          mostrarToast('error', 'No se pudo iniciar la ruta', err.message);
+        } finally {
+          render();
+        }
+      });
+    });
+
+    contenedor.querySelectorAll('button[data-accion="finalizar"]').forEach((boton) => {
+      boton.addEventListener('click', async () => {
+        const id = Number(boton.dataset.id);
+        boton.disabled = true;
+        boton.innerHTML = '<span class="spinner"></span> Finalizando...';
+        try {
+          await finalizarRuta(id);
+          if (rutaTransmitiendoId === id) detenerGps();
+          mostrarToast('success', 'Ruta finalizada', 'Se notificó automáticamente a los ciudadanos de la zona.');
+        } catch (err) {
+          mostrarToast('error', 'No se pudo finalizar la ruta', err.message);
+        } finally {
+          render();
+        }
+      });
+    });
   }
 
   render();
+
+  window.addEventListener('beforeunload', () => {
+    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+  });
 })();

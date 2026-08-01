@@ -18,6 +18,63 @@ async function obtenerUsuariosSemilla() {
 }
 
 /**
+ * Ciudadanos activos residentes en una zona (operador/admin) — usado para
+ * identificar al vecino de una recolección registrada.
+ */
+async function obtenerCiudadanosPorZona(zonaId) {
+  if (!zonaId) return [];
+  const respuesta = await apiGet(`/usuarios/ciudadanos-por-zona/${zonaId}`);
+  return respuesta.data;
+}
+
+/**
+ * Sube/reemplaza la foto de perfil del usuario autenticado (cualquier rol).
+ */
+async function subirFotoPerfil(archivo) {
+  const datosFormulario = new FormData();
+  datosFormulario.append('foto', archivo);
+  const respuesta = await apiPut('/usuarios/perfil/foto', datosFormulario);
+  return respuesta.data.usuario;
+}
+
+/**
+ * Igual que subirFotoPerfil(), pero reporta progreso real de subida (byte a
+ * byte, vía XMLHttpRequest — fetch no expone progreso de subida) para usarla
+ * con la zona de carga de archivos (utils/uploadZone.js).
+ * @param {File} archivo
+ * @param {(porcentaje:number)=>void} onProgress
+ */
+function subirFotoPerfilConProgreso(archivo, onProgress) {
+  return new Promise((resolve, reject) => {
+    const datosFormulario = new FormData();
+    datosFormulario.append('foto', archivo);
+
+    const sesion = Storage.get(STORAGE_KEYS.SESION, null);
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', `${API_BASE_URL}/usuarios/perfil/foto`);
+    if (sesion?.token) xhr.setRequestHeader('Authorization', `Bearer ${sesion.token}`);
+
+    xhr.upload.addEventListener('progress', (ev) => {
+      if (ev.lengthComputable && onProgress) onProgress(Math.round((ev.loaded / ev.total) * 100));
+    });
+
+    xhr.addEventListener('load', () => {
+      let datos = null;
+      try { datos = JSON.parse(xhr.responseText); } catch (err) { /* respuesta sin cuerpo JSON */ }
+
+      if (xhr.status >= 200 && xhr.status < 300 && datos?.success) {
+        resolve(datos.data.usuario);
+      } else {
+        reject(new Error(datos?.message || 'No se pudo subir la foto de perfil.'));
+      }
+    });
+    xhr.addEventListener('error', () => reject(new Error('No se pudo conectar con el servidor.')));
+
+    xhr.send(datosFormulario);
+  });
+}
+
+/**
  * Perfil del usuario autenticado (cualquier rol).
  */
 async function obtenerMiPerfil() {
@@ -51,6 +108,15 @@ async function crearOperador(datos) {
 }
 
 /**
+ * Crea una cuenta de administrador (admin). Único punto de alta para este
+ * rol, igual que con operadores; el backend envía las credenciales por correo.
+ */
+async function crearAdministrador(datos) {
+  const respuesta = await apiPost('/usuarios/administradores', datos);
+  return respuesta.data.usuario;
+}
+
+/**
  * Actualiza datos de un usuario (admin).
  */
 async function actualizarUsuario(id, cambios) {
@@ -66,10 +132,25 @@ async function cambiarEstadoUsuario(id) {
   return respuesta.data.usuario;
 }
 
+/**
+ * Asigna/reasigna la zona de recolección y el camión de un operador (admin).
+ * @param {number|string} id
+ * @param {{zonaId: number|string|null, camionId: number|string|null}} asignacion
+ */
+async function asignarZonaCamionOperador(id, { zonaId, camionId }) {
+  const respuesta = await apiPut(`/usuarios/${id}/asignacion`, { zonaId, camionId });
+  return respuesta.data.usuario;
+}
+
 window.obtenerUsuariosSemilla = obtenerUsuariosSemilla;
+window.obtenerCiudadanosPorZona = obtenerCiudadanosPorZona;
+window.subirFotoPerfil = subirFotoPerfil;
+window.subirFotoPerfilConProgreso = subirFotoPerfilConProgreso;
 window.obtenerMiPerfil = obtenerMiPerfil;
 window.actualizarMiPerfil = actualizarMiPerfil;
 window.cambiarMiPassword = cambiarMiPassword;
 window.crearOperador = crearOperador;
+window.crearAdministrador = crearAdministrador;
 window.actualizarUsuario = actualizarUsuario;
 window.cambiarEstadoUsuario = cambiarEstadoUsuario;
+window.asignarZonaCamionOperador = asignarZonaCamionOperador;

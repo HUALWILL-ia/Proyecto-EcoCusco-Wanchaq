@@ -15,12 +15,13 @@
   const UMBRAL_SENAL_PERDIDA_MS = 2 * 60 * 1000; // 2 minutos
 
   (async () => {
-    let usuario, miZona, camion, miPosicion = null;
+    let usuario, miZona, camion, todasZonas = [], miPosicion = null;
     try {
       ({ usuario } = await obtenerMiPerfil());
       miZona = await getZonaPorNombre(usuario.zona);
       const camiones = await obtenerCamiones();
       camion = miZona ? camiones.find((c) => c.zonaAsignada === miZona.id) : camiones[0];
+      todasZonas = await obtenerZonas();
     } catch (err) {
       mostrarToast('error', 'No se pudo cargar la información del mapa', err.message);
       return;
@@ -52,6 +53,9 @@
       attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 18,
     }).addTo(mapa);
+
+    const { leyenda } = dibujarPoligonosZonas(mapa, todasZonas, { zonaDestacadaId: miZona ? miZona.id : null });
+    renderLeyendaZonas(document.getElementById('leyendaZonas'), leyenda);
 
     const iconoCamion = L.divIcon({ html: '🚛', className: 'icono-camion-mapa', iconSize: [32, 32] });
     const marcador = L.marker(centro, { icon: iconoCamion }).addTo(mapa)

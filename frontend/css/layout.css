@@ -250,9 +250,39 @@
   .kpi-grid { grid-template-columns: 1fr 1fr; }
 }
 
+@media (max-width: 640px) {
+  /* Marca + hamburguesa + avatar + "Salir" no caben con el subtítulo y el
+     nombre de usuario en una sola fila de 375px-414px: se ocultan los textos
+     secundarios y se conserva solo lo esencial (logo, ícono, avatar, salir). */
+  .navbar-inner { padding: 0 var(--space-3); gap: var(--space-2); }
+  .navbar-brand-text span { display: none; }
+  .navbar-user-name { display: none; }
+}
+
 @media (max-width: 480px) {
   .kpi-grid { grid-template-columns: 1fr; }
   .input-otp input { width: 2.5rem; height: 3rem; }
+}
+
+/* --- Móvil (375px-414px): celulares de operadores y ciudadanos --------------
+   Muchas pantallas de formulario usan `.dashboard-grid` con
+   `style="grid-template-columns:1fr 1fr"` en línea para poner pares de campos
+   uno junto al otro (nombres/apellidos, DNI/celular, etc.). Un estilo en línea
+   siempre gana sobre una regla de clase normal, así que sin el !important de
+   aquí esos formularios quedarían apretados en dos columnas en un celular. */
+@media (max-width: 640px) {
+  .dashboard-grid { grid-template-columns: 1fr !important; }
+  .topbar { padding: 0 var(--space-3); flex-wrap: wrap; gap: var(--space-2); height: auto; min-height: var(--navbar-height); padding-top: var(--space-2); padding-bottom: var(--space-2); }
+  .topbar-title h1 { font-size: var(--fs-lg); }
+  .page-content { padding: var(--space-3); }
+  .container { padding: 0 var(--space-3); }
+
+  /* Mapas Leaflet (GPS operador/ciudadano, camión admin, polígono de zona):
+     ya usan width:100% (no desbordan), pero reducen su alto fijo para que
+     quepan mejor en la altura de un celular sin scroll excesivo. */
+  #mapaGps, #mapaGpsOperador, #mapaGpsCamion, #mapaZonaPoligono {
+    height: 320px !important;
+  }
 }
 
 /* ==========================================================================
@@ -382,6 +412,7 @@
   justify-content: center;
   gap: var(--space-4);
 }
+.auth-visual-logo { display: block; width: 320px; height: 320px; max-width: 100%; object-fit: contain; align-self: center; margin-bottom: var(--space-2); }
 .auth-visual .zones-strip { justify-content: flex-start; }
 .auth-visual .zone-chip { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.25); }
 .auth-form-side { display: flex; align-items: center; justify-content: center; padding: var(--space-6); }

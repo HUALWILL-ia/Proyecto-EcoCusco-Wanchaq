@@ -75,4 +75,46 @@
     else if (rol === 'operador') window.location.href = 'operador/dashboard.html';
     else window.location.href = 'ciudadano/dashboard.html';
   }
+
+  const linkOlvidePassword = document.getElementById('linkOlvidePassword');
+  const formOlvidePassword = document.getElementById('formOlvidePassword');
+  const inputCorreoOlvide = document.getElementById('correoOlvide');
+  const errorCorreoOlvide = document.getElementById('errorCorreoOlvide');
+  const btnEnviarOlvidePassword = document.getElementById('btnEnviarOlvidePassword');
+
+  linkOlvidePassword.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    formOlvidePassword.reset();
+    inputCorreoOlvide.classList.remove('is-invalid');
+    errorCorreoOlvide.textContent = '';
+    errorCorreoOlvide.classList.remove('show');
+    abrirModal('modalOlvidePassword');
+  });
+
+  formOlvidePassword.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const correo = inputCorreoOlvide.value.trim();
+
+    const vCorreo = validarCorreo(correo);
+    if (!vCorreo.valido) {
+      mostrarError(inputCorreoOlvide, errorCorreoOlvide, vCorreo.mensaje);
+      return;
+    }
+
+    btnEnviarOlvidePassword.disabled = true;
+    btnEnviarOlvidePassword.innerHTML = '<span class="spinner"></span> Enviando...';
+
+    const resultado = await olvidarPassword(correo);
+
+    btnEnviarOlvidePassword.disabled = false;
+    btnEnviarOlvidePassword.textContent = 'Enviar contraseña temporal';
+
+    if (!resultado.ok) {
+      mostrarError(inputCorreoOlvide, errorCorreoOlvide, resultado.mensaje);
+      return;
+    }
+
+    cerrarModal('modalOlvidePassword');
+    mostrarToast('success', 'Correo enviado', resultado.mensaje);
+  });
 })();

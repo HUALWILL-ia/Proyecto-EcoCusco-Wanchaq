@@ -69,10 +69,12 @@ CREATE TABLE zonas (
     tipo_residuo_principal  VARCHAR(50),
     contenedores            INTEGER NOT NULL DEFAULT 0,
     poblacion_estimada      INTEGER NOT NULL DEFAULT 0,
-    estado                  estado_zona NOT NULL DEFAULT 'activa'
+    estado                  estado_zona NOT NULL DEFAULT 'activa',
+    poligono                JSONB NOT NULL DEFAULT '[]'::jsonb
 );
 
 COMMENT ON TABLE zonas IS 'Sectores/urbanizaciones del distrito de Wanchaq cubiertos por el servicio.';
+COMMENT ON COLUMN zonas.poligono IS 'Arreglo de coordenadas [{"lat":..,"lng":..}, ...] que delimita el área de la zona en el mapa. Editable por el admin desde admin/zonas.html.';
 
 -- --- Tipos de residuo ---------------------------------------------------------
 CREATE TABLE tipos_residuo (
@@ -116,8 +118,11 @@ CREATE TABLE usuarios (
     telefono                VARCHAR(20),
     zona_id                 INTEGER REFERENCES zonas(id) ON DELETE SET NULL,
     direccion               VARCHAR(200),
+    latitud                 NUMERIC(10, 7),
+    longitud                NUMERIC(10, 7),
     nivel_ecologico         VARCHAR(30) DEFAULT 'Eco Semilla',
     kg_reciclados           NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    foto_perfil             VARCHAR(300),
     camion_id               INTEGER REFERENCES camiones(id) ON DELETE SET NULL,
     creado_por              INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
     estado                  estado_usuario NOT NULL DEFAULT 'activo',
@@ -127,8 +132,21 @@ CREATE TABLE usuarios (
     updated_at              TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+COMMENT ON COLUMN usuarios.telefono IS 'Celular peruano (9 dígitos, empieza en 9), validado en el backend al crear/editar la cuenta.';
 COMMENT ON COLUMN usuarios.zona_id IS 'Zona de residencia (ciudadano) o zona asignada (operador).';
-COMMENT ON COLUMN usuarios.camion_id IS 'Camión asignado (solo aplica a operadores).';
+-- Asignación operador -> camión: se eligió la FK directa (usuarios.camion_id)
+-- en vez de una relación indirecta a través de rutas.camion_id, porque un
+-- operador puede tener un camión asignado ANTES de que exista o se le
+-- asigne una ruta concreta (ej. recién contratado), y porque el admin ya
+-- gestiona esta asignación desde el alta/edición del operador, no desde la
+-- pantalla de rutas. camiones.operador_asignado_id es la relación inversa
+-- (mismo vínculo, dirección contraria) y el backend la mantiene sincronizada
+-- en cada alta/reasignación (ver usuarios.controller.js: crearOperador y
+-- asignarOperador) para que ambos lados coincidan siempre.
+COMMENT ON COLUMN usuarios.camion_id IS 'Camión asignado (solo aplica a operadores). Ver comentario arriba: es el lado autoritativo de la asignación; camiones.operador_asignado_id se mantiene sincronizado desde el backend.';
+COMMENT ON COLUMN usuarios.latitud IS 'Coordenada GPS opcional de la dirección del ciudadano (capturada con navigator.geolocation), para afinar el ETA del camión.';
+COMMENT ON COLUMN usuarios.longitud IS 'Coordenada GPS opcional de la dirección del ciudadano (capturada con navigator.geolocation), para afinar el ETA del camión.';
+COMMENT ON COLUMN usuarios.foto_perfil IS 'Ruta del archivo de foto de perfil subido vía PUT /api/usuarios/perfil/foto (cualquier rol).';
 
 -- Ahora sí podemos cerrar la relación circular camiones -> usuarios:
 ALTER TABLE camiones
@@ -185,6 +203,7 @@ CREATE TABLE incidencias_historial (
 CREATE TABLE recolecciones (
     id              SERIAL PRIMARY KEY,
     operador_id     INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE RESTRICT,
+    usuario_id      INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
     ruta_id         INTEGER REFERENCES rutas(id) ON DELETE SET NULL,
     ruta_nombre     VARCHAR(150),
     tipo_residuo    VARCHAR(100) NOT NULL,
@@ -192,6 +211,8 @@ CREATE TABLE recolecciones (
     observaciones   TEXT,
     fecha           TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON COLUMN recolecciones.usuario_id IS 'Ciudadano identificado como generador de esta recolección (opcional, seleccionado por el operador al registrar).';
 
 -- --- Notificaciones ----------------------------------------------------------------
 CREATE TABLE notificaciones (
@@ -275,6 +296,7 @@ CREATE INDEX idx_incidencias_hist_inc   ON incidencias_historial(incidencia_id);
 CREATE INDEX idx_recolecciones_fecha    ON recolecciones(fecha);
 CREATE INDEX idx_recolecciones_ruta     ON recolecciones(ruta_id);
 CREATE INDEX idx_recolecciones_operador ON recolecciones(operador_id);
+CREATE INDEX idx_recolecciones_usuario  ON recolecciones(usuario_id);
 
 CREATE INDEX idx_notificaciones_usuario ON notificaciones(para_usuario);
 CREATE INDEX idx_notificaciones_fecha   ON notificaciones(fecha);
@@ -556,16 +578,32 @@ CREATE TRIGGER trg_validar_camion_rutas
 -- ============================================================================
 
 -- --- 5.1 Zonas de recolección --------------------------------------------------
-INSERT INTO zonas (codigo, nombre, descripcion, referencia, horario_recoleccion, tipo_residuo_principal, contenedores, poblacion_estimada) VALUES
-('ZW-01', 'Centro Wanchaq',  'Casco urbano central, comercios y oficinas administrativas.',                 'Av. Los Incas / Plaza Túpac Amaru',            'Lunes, Miércoles y Viernes — 07:00 a 09:00', 'Mixto',      18, 4200),
-('ZW-02', 'Manuel Prado',    'Urbanización residencial consolidada.',                                       'Urb. Manuel Prado, altura de Av. La Cultura',  'Martes, Jueves y Sábado — 08:00 a 10:00',    'Orgánico',   14, 3100),
-('ZW-03', 'Miravalle',       'Zona residencial en ladera, acceso vehicular restringido en tramos altos.',   'Prolongación Av. Miravalle',                   'Lunes, Miércoles y Viernes — 09:30 a 11:30', 'Mixto',      10, 2600),
-('ZW-04', E'T\'ío',          'Sector semi-urbano próximo a áreas verdes.',                                  E'Vía T\'ío, altura del paradero Amauta',       'Martes y Sábado — 07:30 a 09:00',            'Orgánico',    8, 1800),
-('ZW-05', 'Magisterio',      'Urbanización docente, alta densidad residencial.',                            'Urb. Magisterio, Av. La Cultura tramo Wanchaq','Lunes, Jueves y Sábado — 08:00 a 10:00',     'Reciclable', 16, 3400),
-('ZW-06', 'Balconcillo',     'Zona comercial y residencial mixta cercana a la estación ferroviaria.',       'Av. Ferrocarril / Balconcillo Bajo',           'Martes, Jueves y Sábado — 06:30 a 08:30',    'Mixto',      12, 2900),
-('ZW-07', 'Marcavalle',      'Sector residencial consolidado con áreas de comercio local.',                 'Av. Marcavalle / Jr. Los Cipreses',            'Lunes, Miércoles y Viernes — 08:00 a 10:00', 'Reciclable', 11, 2500),
-('ZW-08', 'Villa Mejorada',  'Asentamiento residencial en expansión.',                                      'Jr. Villa Mejorada, altura del Colegio San Antonio', 'Martes y Viernes — 09:00 a 11:00',     'Mixto',       9, 2100),
-('ZW-09', 'Independencia',   'Sector residencial próximo al límite con el distrito de Cusco.',              'Av. Independencia / Jr. Tres de Mayo',         'Lunes, Jueves y Sábado — 07:00 a 09:00',     'Orgánico',   13, 2800);
+-- NOTA IMPORTANTE sobre la columna `poligono`: las coordenadas de abajo son
+-- RECTÁNGULOS DE EJEMPLO dispuestos en una cuadrícula 3x3 no solapada alrededor
+-- del distrito de Wanchaq — sirven para que el mapa tenga algo que dibujar desde
+-- el primer arranque del sistema, pero NO son los límites reales de cada zona.
+-- El administrador debe reemplazarlos con las coordenadas reales del distrito
+-- (usando el editor de polígonos en admin/zonas.html) antes de usar el sistema
+-- en producción.
+INSERT INTO zonas (codigo, nombre, descripcion, referencia, horario_recoleccion, tipo_residuo_principal, contenedores, poblacion_estimada, poligono) VALUES
+('ZW-01', 'Centro Wanchaq',  'Casco urbano central, comercios y oficinas administrativas.',                 'Av. Los Incas / Plaza Túpac Amaru',            'Lunes, Miércoles y Viernes — 07:00 a 09:00', 'Mixto',      18, 4200,
+ '[{"lat":-13.518,"lng":-71.965},{"lat":-13.518,"lng":-71.956},{"lat":-13.526,"lng":-71.956},{"lat":-13.526,"lng":-71.965}]'::jsonb),
+('ZW-02', 'Manuel Prado',    'Urbanización residencial consolidada.',                                       'Urb. Manuel Prado, altura de Av. La Cultura',  'Martes, Jueves y Sábado — 08:00 a 10:00',    'Orgánico',   14, 3100,
+ '[{"lat":-13.518,"lng":-71.955},{"lat":-13.518,"lng":-71.946},{"lat":-13.526,"lng":-71.946},{"lat":-13.526,"lng":-71.955}]'::jsonb),
+('ZW-03', 'Miravalle',       'Zona residencial en ladera, acceso vehicular restringido en tramos altos.',   'Prolongación Av. Miravalle',                   'Lunes, Miércoles y Viernes — 09:30 a 11:30', 'Mixto',      10, 2600,
+ '[{"lat":-13.527,"lng":-71.965},{"lat":-13.527,"lng":-71.956},{"lat":-13.535,"lng":-71.956},{"lat":-13.535,"lng":-71.965}]'::jsonb),
+('ZW-04', E'T\'ío',          'Sector semi-urbano próximo a áreas verdes.',                                  E'Vía T\'ío, altura del paradero Amauta',       'Martes y Sábado — 07:30 a 09:00',            'Orgánico',    8, 1800,
+ '[{"lat":-13.536,"lng":-71.965},{"lat":-13.536,"lng":-71.956},{"lat":-13.544,"lng":-71.956},{"lat":-13.544,"lng":-71.965}]'::jsonb),
+('ZW-05', 'Magisterio',      'Urbanización docente, alta densidad residencial.',                            'Urb. Magisterio, Av. La Cultura tramo Wanchaq','Lunes, Jueves y Sábado — 08:00 a 10:00',     'Reciclable', 16, 3400,
+ '[{"lat":-13.518,"lng":-71.945},{"lat":-13.518,"lng":-71.936},{"lat":-13.526,"lng":-71.936},{"lat":-13.526,"lng":-71.945}]'::jsonb),
+('ZW-06', 'Balconcillo',     'Zona comercial y residencial mixta cercana a la estación ferroviaria.',       'Av. Ferrocarril / Balconcillo Bajo',           'Martes, Jueves y Sábado — 06:30 a 08:30',    'Mixto',      12, 2900,
+ '[{"lat":-13.527,"lng":-71.955},{"lat":-13.527,"lng":-71.946},{"lat":-13.535,"lng":-71.946},{"lat":-13.535,"lng":-71.955}]'::jsonb),
+('ZW-07', 'Marcavalle',      'Sector residencial consolidado con áreas de comercio local.',                 'Av. Marcavalle / Jr. Los Cipreses',            'Lunes, Miércoles y Viernes — 08:00 a 10:00', 'Reciclable', 11, 2500,
+ '[{"lat":-13.527,"lng":-71.945},{"lat":-13.527,"lng":-71.936},{"lat":-13.535,"lng":-71.936},{"lat":-13.535,"lng":-71.945}]'::jsonb),
+('ZW-08', 'Villa Mejorada',  'Asentamiento residencial en expansión.',                                      'Jr. Villa Mejorada, altura del Colegio San Antonio', 'Martes y Viernes — 09:00 a 11:00',     'Mixto',       9, 2100,
+ '[{"lat":-13.536,"lng":-71.955},{"lat":-13.536,"lng":-71.946},{"lat":-13.544,"lng":-71.946},{"lat":-13.544,"lng":-71.955}]'::jsonb),
+('ZW-09', 'Independencia',   'Sector residencial próximo al límite con el distrito de Cusco.',              'Av. Independencia / Jr. Tres de Mayo',         'Lunes, Jueves y Sábado — 07:00 a 09:00',     'Orgánico',   13, 2800,
+ '[{"lat":-13.536,"lng":-71.945},{"lat":-13.536,"lng":-71.936},{"lat":-13.544,"lng":-71.936},{"lat":-13.544,"lng":-71.945}]'::jsonb);
 
 -- --- 5.2 Tipos de residuo -------------------------------------------------------
 INSERT INTO tipos_residuo (nombre, descripcion, color, icono, dias_recomendados, contenedor) VALUES

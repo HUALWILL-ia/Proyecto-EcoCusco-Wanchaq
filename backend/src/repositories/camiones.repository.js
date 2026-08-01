@@ -41,6 +41,22 @@ async function buscarPorOperador(operadorId) {
   return mapRow(rows[0]);
 }
 
+/**
+ * Camiones operativos y sin conflicto de asignación: libres (sin operador) o
+ * ya asignados al propio operador que se está editando (para que su camión
+ * actual siga apareciendo como opción al reasignarlo). Usado para poblar el
+ * selector "Camión asignado" al crear/reasignar un operador.
+ */
+async function listarDisponibles(operadorIdExcluido) {
+  const { rows } = await db.query(
+    `SELECT * FROM camiones
+     WHERE estado = 'operativo' AND (operador_asignado_id IS NULL OR operador_asignado_id = $1)
+     ORDER BY placa`,
+    [operadorIdExcluido || null]
+  );
+  return rows.map(mapRow);
+}
+
 async function crear(camion) {
   const { rows } = await db.query(
     `INSERT INTO camiones (placa, modelo, capacidad_kg, estado, zona_asignada_id, ultimo_mantenimiento, nivel_combustible, ubicacion_lat, ubicacion_lng, ubicacion_referencia)
@@ -100,4 +116,4 @@ async function eliminar(id) {
   return rowCount > 0;
 }
 
-module.exports = { leerTodos, buscarPorId, buscarPorOperador, crear, actualizar, eliminar };
+module.exports = { leerTodos, buscarPorId, buscarPorOperador, listarDisponibles, crear, actualizar, eliminar };

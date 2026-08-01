@@ -9,6 +9,17 @@ async function obtenerCamiones() {
   return respuesta.data;
 }
 
+/**
+ * Camiones operativos y sin conflicto de asignación (admin) — para poblar el
+ * selector "Camión asignado" al crear/reasignar un operador. Si se pasa
+ * operadorId, incluye también el camión ya asignado a ese operador.
+ */
+async function obtenerCamionesDisponibles(operadorId) {
+  const query = operadorId ? `?operadorId=${operadorId}` : '';
+  const respuesta = await apiGet(`/camiones/disponibles${query}`);
+  return respuesta.data;
+}
+
 async function obtenerCamionPorId(id) {
   if (!id) return null;
   try {
@@ -76,6 +87,7 @@ async function obtenerGPSPorCamion(camionId) {
 }
 
 window.obtenerCamiones = obtenerCamiones;
+window.obtenerCamionesDisponibles = obtenerCamionesDisponibles;
 window.obtenerCamionPorId = obtenerCamionPorId;
 window.obtenerMiCamion = obtenerMiCamion;
 window.crearCamion = crearCamion;

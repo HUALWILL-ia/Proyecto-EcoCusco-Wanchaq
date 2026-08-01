@@ -43,4 +43,21 @@ const eliminar = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Zona eliminada correctamente.' });
 });
 
-module.exports = { listar, obtenerPorId, crear, actualizar, eliminar };
+/**
+ * PUT /api/zonas/:id/poligono (admin) — guarda las coordenadas del área
+ * territorial de la zona, dibujadas en el editor de mapa de admin/zonas.html.
+ */
+const actualizarPoligono = asyncHandler(async (req, res) => {
+  const zona = await zonasRepo.buscarPorId(req.params.id);
+  if (!zona) throw ApiError.notFound('Zona no encontrada.');
+
+  const { poligono } = req.body;
+  if (!Array.isArray(poligono) || poligono.some((p) => typeof p?.lat !== 'number' || typeof p?.lng !== 'number')) {
+    throw ApiError.badRequest('El polígono debe ser un arreglo de coordenadas {lat, lng}.', 'POLIGONO_INVALIDO');
+  }
+
+  const actualizada = await zonasRepo.actualizarPoligono(req.params.id, poligono);
+  res.json({ success: true, message: 'Área de la zona actualizada correctamente.', data: actualizada });
+});
+
+module.exports = { listar, obtenerPorId, crear, actualizar, eliminar, actualizarPoligono };

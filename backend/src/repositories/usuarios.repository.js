@@ -29,6 +29,7 @@ function mapRow(row) {
     estado: row.estado,
     requiere2FA: row.requiere_2fa,
     debeCambiarPassword: row.debe_cambiar_password,
+    fotoPerfil: row.foto_perfil,
     creadoEl: row.creado_el,
     updatedAt: row.updated_at,
   };
@@ -36,6 +37,8 @@ function mapRow(row) {
   if (row.rol === 'ciudadano') {
     usuario.zona = row.zona_nombre || null;
     usuario.direccion = row.direccion;
+    usuario.latitud = row.latitud !== null ? Number(row.latitud) : null;
+    usuario.longitud = row.longitud !== null ? Number(row.longitud) : null;
     usuario.nivelEcologico = row.nivel_ecologico;
     usuario.kgReciclados = row.kg_reciclados !== null ? Number(row.kg_reciclados) : 0;
   }
@@ -96,6 +99,18 @@ async function leerTodos() {
 }
 
 /**
+ * Ciudadanos activos residentes en una zona (usado por el operador para
+ * identificar a quién le corresponde una recolección registrada).
+ */
+async function listarCiudadanosPorZona(zonaId) {
+  const { rows } = await db.query(
+    `${SELECT_BASE} WHERE u.rol = 'ciudadano' AND u.zona_id = $1 AND u.estado = 'activo' ORDER BY u.nombres, u.apellidos`,
+    [zonaId]
+  );
+  return rows.map(mapRow);
+}
+
+/**
  * Resuelve el nombre de una zona a su id (usado al guardar la zona de
  * residencia de un ciudadano, que llega como texto desde el frontend).
  */
@@ -116,9 +131,9 @@ async function crear(usuario) {
   const { rows } = await db.query(
     `INSERT INTO usuarios
        (rol, nombres, apellidos, cargo, dni, correo, password_hash, telefono,
-        zona_id, direccion, nivel_ecologico, kg_reciclados, camion_id,
+        zona_id, direccion, latitud, longitud, nivel_ecologico, kg_reciclados, camion_id,
         creado_por, estado, requiere_2fa, debe_cambiar_password)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
      RETURNING id`,
     [
       usuario.rol,
@@ -131,6 +146,8 @@ async function crear(usuario) {
       usuario.telefono || null,
       zonaId,
       usuario.direccion || null,
+      usuario.latitud ?? null,
+      usuario.longitud ?? null,
       usuario.nivelEcologico || 'Eco Semilla',
       usuario.kgReciclados ?? 0,
       usuario.camionAsignado || null,
@@ -149,6 +166,8 @@ const COLUMNAS_DIRECTAS = {
   cargo: 'cargo',
   telefono: 'telefono',
   direccion: 'direccion',
+  latitud: 'latitud',
+  longitud: 'longitud',
   estado: 'estado',
   passwordHash: 'password_hash',
   debeCambiarPassword: 'debe_cambiar_password',
@@ -157,6 +176,7 @@ const COLUMNAS_DIRECTAS = {
   kgReciclados: 'kg_reciclados',
   camionAsignado: 'camion_id',
   zonaAsignada: 'zona_id',
+  fotoPerfil: 'foto_perfil',
 };
 
 async function actualizar(id, cambios) {
@@ -215,5 +235,6 @@ module.exports = {
   actualizar,
   eliminar,
   listarPorRol,
+  listarCiudadanosPorZona,
   aPublico,
 };

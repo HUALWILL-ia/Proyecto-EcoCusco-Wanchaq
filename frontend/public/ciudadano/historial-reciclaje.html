@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Historial de reciclaje — EcoRutas Wanchaq</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/base.css">
+<link rel="stylesheet" href="../../css/components.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<link rel="icon" type="image/png" href="../../assets/logos/Logo_solo_hoja.png">
+</head>
+<body>
+
+<nav class="navbar" id="navbar-ciudadano"></nav>
+
+<main class="container" style="padding-top:var(--space-6); padding-bottom:var(--space-7);">
+  <div class="topbar-title" style="margin-bottom:var(--space-5);">
+    <h1>Historial de reciclaje</h1>
+    <span>Recolecciones registradas en tu zona</span>
+  </div>
+
+  <div class="card">
+    <div class="table-toolbar">
+      <div class="table-filters">
+        <select id="filtroTipoResiduo" class="form-control" style="width:200px;">
+          <option value="">Todos los tipos</option>
+        </select>
+        <input type="date" id="filtroDesde" class="form-control" style="width:170px;" title="Desde">
+        <input type="date" id="filtroHasta" class="form-control" style="width:170px;" title="Hasta">
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr><th>Fecha</th><th>Zona</th><th>Tipo de residuo</th><th>Peso (kg)</th><th>Estado</th></tr>
+        </thead>
+        <tbody id="tablaHistorialReciclaje"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="paginacionReciclaje"></div>
+  </div>
+</main>
+
+<footer class="site-footer" id="footer-institucional"></footer>
+
+<script src="../../js/mocks/zonas.mock.js"></script>
+<script src="../../js/mocks/usuarios.mock.js"></script>
+<script src="../../js/mocks/residuos.mock.js"></script>
+<script src="../../js/mocks/camiones.mock.js"></script>
+<script src="../../js/mocks/rutas.mock.js"></script>
+<script src="../../js/mocks/incidencias.mock.js"></script>
+<script src="../../js/mocks/notificaciones.mock.js"></script>
+<script src="../../js/utils/api.js"></script>
+<script src="../../js/utils/storage.js"></script>
+<script src="../../js/utils/validaciones.js"></script>
+<script src="../../js/utils/auth-simulado.js"></script>
+<script src="../../js/utils/ui.js"></script>
+<script src="../../js/pages/ciudadano-historial-reciclaje.js"></script>
+</body>
+</html>

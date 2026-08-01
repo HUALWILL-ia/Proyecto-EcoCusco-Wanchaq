@@ -20,6 +20,7 @@ function mapRow(row) {
     contenedores: row.contenedores,
     poblacionEstimada: row.poblacion_estimada,
     estado: row.estado,
+    poligono: row.poligono || [],
   };
 }
 
@@ -41,8 +42,8 @@ async function buscarPorNombre(nombre) {
 async function crear(zona) {
   const codigo = zona.codigo || `ZW-${Date.now().toString().slice(-6)}`;
   const { rows } = await db.query(
-    `INSERT INTO zonas (codigo, nombre, descripcion, referencia, horario_recoleccion, tipo_residuo_principal, contenedores, poblacion_estimada)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    `INSERT INTO zonas (codigo, nombre, descripcion, referencia, horario_recoleccion, tipo_residuo_principal, contenedores, poblacion_estimada, poligono)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      RETURNING *`,
     [
       codigo,
@@ -53,6 +54,7 @@ async function crear(zona) {
       zona.tipoResiduoPrincipal || 'Mixto',
       Number(zona.contenedores) || 0,
       Number(zona.poblacionEstimada) || 0,
+      JSON.stringify(zona.poligono || []),
     ]
   );
   return mapRow(rows[0]);
@@ -94,4 +96,15 @@ async function eliminar(id) {
   return rowCount > 0;
 }
 
-module.exports = { leerTodos, buscarPorId, buscarPorNombre, crear, actualizar, eliminar };
+/**
+ * Actualiza solo el polígono territorial de una zona (editor de mapa en admin/zonas.html).
+ */
+async function actualizarPoligono(id, poligono) {
+  const { rows } = await db.query(
+    'UPDATE zonas SET poligono = $1 WHERE id = $2 RETURNING *',
+    [JSON.stringify(poligono), id]
+  );
+  return mapRow(rows[0]);
+}
+
+module.exports = { leerTodos, buscarPorId, buscarPorNombre, crear, actualizar, eliminar, actualizarPoligono };

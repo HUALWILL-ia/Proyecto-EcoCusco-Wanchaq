@@ -46,6 +46,18 @@ const eliminar = asyncHandler(async (req, res) => {
 });
 
 /**
+ * GET /api/camiones/disponibles (admin) — camiones operativos y sin
+ * conflicto de asignación, para poblar el selector al crear/reasignar un
+ * operador. ?operadorId=X incluye también el camión ya asignado a ese
+ * operador (para que no desaparezca de la lista al reasignarlo).
+ */
+const obtenerDisponibles = asyncHandler(async (req, res) => {
+  const { operadorId } = req.query;
+  const disponibles = await camionesRepo.listarDisponibles(operadorId ? Number(operadorId) : null);
+  res.json({ success: true, data: disponibles });
+});
+
+/**
  * GET /api/camiones/mi-camion (operador autenticado)
  */
 const obtenerMiCamion = asyncHandler(async (req, res) => {
@@ -57,4 +69,4 @@ const obtenerMiCamion = asyncHandler(async (req, res) => {
   res.json({ success: true, data: camion });
 });
 
-module.exports = { listar, obtenerPorId, crear, actualizar, eliminar, obtenerMiCamion };
+module.exports = { listar, obtenerPorId, crear, actualizar, eliminar, obtenerMiCamion, obtenerDisponibles };

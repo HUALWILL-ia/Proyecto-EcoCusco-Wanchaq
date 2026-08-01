@@ -60,9 +60,20 @@ async function eliminarZona(id) {
   return true;
 }
 
+/**
+ * Guarda las coordenadas del polígono territorial de una zona (admin),
+ * dibujado en el editor de mapa de admin/zonas.html.
+ * @param {Array<{lat:number, lng:number}>} poligono
+ */
+async function actualizarPoligonoZona(id, poligono) {
+  const respuesta = await apiPut(`/zonas/${id}/poligono`, { poligono });
+  return respuesta.data;
+}
+
 window.obtenerZonas = obtenerZonas;
 window.obtenerZonaPorId = obtenerZonaPorId;
 window.obtenerZonaPorNombre = obtenerZonaPorNombre;
 window.crearZona = crearZona;
 window.actualizarZona = actualizarZona;
 window.eliminarZona = eliminarZona;
+window.actualizarPoligonoZona = actualizarPoligonoZona;

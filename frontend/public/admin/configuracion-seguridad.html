@@ -30,6 +30,14 @@
     </header>
 
     <main class="page-content">
+      <div class="alert alert-warning" id="avisoPasswordTemporal" style="display:none; margin-bottom:var(--space-5);">
+        <span>🔐</span>
+        <div>
+          <strong>Sigues usando una contraseña temporal.</strong>
+          <p class="mb-0">Por seguridad, <a href="#formPasswordAdmin">cámbiala ahora</a> en la sección "Cambiar mi contraseña".</p>
+        </div>
+      </div>
+
       <div class="dashboard-grid">
         <div class="stack">
           <div class="card">
@@ -57,7 +65,6 @@
               </select>
             </div>
             <button class="btn btn-primary" id="btnGuardarPolitica">Guardar política</button>
-            <p class="form-hint mt-3">// TODO FASE 2: estas políticas se aplicarán a nivel de servidor (expiración real de JWT, rate-limiting, etc.)</p>
           </div>
 
           <div class="card">

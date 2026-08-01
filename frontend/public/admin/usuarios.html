@@ -53,7 +53,7 @@
         <div class="table-wrapper">
           <table class="data-table">
             <thead>
-              <tr><th>Nombre</th><th>Rol</th><th>DNI</th><th>Correo</th><th>Zona</th><th>Estado</th><th>Acciones</th></tr>
+              <tr><th>Nombre</th><th>Rol</th><th>DNI</th><th>Correo</th><th>Zona</th><th>Camión</th><th>Estado</th><th>Acciones</th></tr>
             </thead>
             <tbody id="tablaUsuarios"></tbody>
           </table>
@@ -75,6 +75,52 @@
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="cerrarModal('modalEstado')">Cancelar</button>
       <button class="btn btn-danger" id="btnConfirmarEstado">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmación de restablecimiento de contraseña -->
+<div class="modal-overlay" id="modalResetPassword">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>¿Restablecer contraseña?</h3>
+      <button class="modal-close" onclick="cerrarModal('modalResetPassword')">&times;</button>
+    </div>
+    <p id="textoModalResetPassword"></p>
+    <p class="form-hint">Se generará una contraseña temporal y se enviará solo al correo del usuario. Tú no verás la nueva contraseña.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="cerrarModal('modalResetPassword')">Cancelar</button>
+      <button class="btn btn-primary" id="btnConfirmarResetPassword">Restablecer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de reasignación de zona/camión (solo operadores) -->
+<div class="modal-overlay" id="modalAsignacion">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Reasignar zona y camión</h3>
+      <button class="modal-close" onclick="cerrarModal('modalAsignacion')">&times;</button>
+    </div>
+    <p id="textoModalAsignacion"></p>
+    <div class="alert alert-warning" id="avisoRutaActivaAsignacion" style="display:none;">
+      <p class="mb-0">⚠️ Este operador tiene una ruta en curso ahora mismo. Reasignarlo puede interrumpir una recolección activa.</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="selectZonaAsignacion">Zona asignada</label>
+      <select id="selectZonaAsignacion" class="form-control">
+        <option value="">Sin asignar</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="selectCamionAsignacion">Camión asignado</label>
+      <select id="selectCamionAsignacion" class="form-control">
+        <option value="">Sin asignar</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="cerrarModal('modalAsignacion')">Cancelar</button>
+      <button class="btn btn-primary" id="btnConfirmarAsignacion">Guardar asignación</button>
     </div>
   </div>
 </div>

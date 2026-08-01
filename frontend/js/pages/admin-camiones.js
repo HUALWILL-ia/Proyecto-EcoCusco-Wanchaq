@@ -77,11 +77,17 @@
     if (socketGps) { socketGps.disconnect(); socketGps = null; }
     if (mapaGps) { mapaGps.remove(); mapaGps = null; marcadorGps = null; }
 
-    setTimeout(() => {
+    setTimeout(async () => {
       const centro = camion.ubicacionActual?.lat ? [camion.ubicacionActual.lat, camion.ubicacionActual.lng] : [-13.5292, -71.955];
       mapaGps = L.map('mapaGpsCamion').setView(centro, 15);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors', maxZoom: 18 }).addTo(mapaGps);
       marcadorGps = L.marker(centro, { icon: L.divIcon({ html: '🚛', className: 'icono-camion-mapa', iconSize: [32, 32] }) }).addTo(mapaGps);
+
+      try {
+        dibujarPoligonosZonas(mapaGps, todasZonas, { zonaDestacadaId: camion.zonaAsignada });
+      } catch (err) {
+        // El mapa sigue siendo útil sin los polígonos si el dibujo falla.
+      }
 
       renderInfoGps(null, camion);
 

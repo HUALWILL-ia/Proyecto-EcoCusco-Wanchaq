@@ -15,6 +15,7 @@ const router = Router();
 router.use(authMiddleware);
 
 router.get('/mi-camion', roles(['operador']), camiones.obtenerMiCamion);
+router.get('/disponibles', roles(['admin']), camiones.obtenerDisponibles);
 router.get('/', camiones.listar);
 router.get('/:id', camiones.obtenerPorId);
 

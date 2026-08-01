@@ -14,8 +14,9 @@ const env = require('../config/env');
 const ApiError = require('../utils/ApiError');
 const asyncHandler = require('../utils/asyncHandler');
 const generarCodigo2FA = require('../utils/generarCodigo2FA');
+const generarPasswordTemporal = require('../utils/generarPasswordTemporal');
 const { enviarCorreo } = require('../config/mailer');
-const { plantillaCodigo2FA } = require('../utils/emailTemplates');
+const { plantillaCodigo2FA, plantillaPasswordTemporal } = require('../utils/emailTemplates');
 
 const RONDAS_BCRYPT = 10;
 
@@ -41,7 +42,7 @@ async function enviarCodigo2FA(usuario) {
  * POST /api/auth/registro-ciudadano
  */
 const registroCiudadano = asyncHandler(async (req, res) => {
-  const { correo, password, dni, zona, nombres, apellidos, telefono, direccion } = req.body;
+  const { correo, password, dni, zona, nombres, apellidos, telefono, direccion, latitud, longitud } = req.body;
 
   if (await usuariosRepo.existeCorreo(correo)) {
     throw ApiError.conflict('Ya existe una cuenta registrada con este correo.', 'CORREO_DUPLICADO');
@@ -54,14 +55,16 @@ const registroCiudadano = asyncHandler(async (req, res) => {
 
   const nuevoUsuario = await usuariosRepo.crear({
     rol: 'ciudadano',
-    nombres: nombres || 'Vecino',
-    apellidos: apellidos || 'de Wanchaq',
+    nombres: nombres.trim(),
+    apellidos: apellidos.trim(),
     dni: dni.trim(),
     correo: correo.trim().toLowerCase(),
     passwordHash,
-    telefono: telefono || '',
+    telefono: telefono.replace(/\D/g, ''),
     zona,
     direccion: direccion || '',
+    latitud: latitud !== undefined && latitud !== null && latitud !== '' ? Number(latitud) : null,
+    longitud: longitud !== undefined && longitud !== null && longitud !== '' ? Number(longitud) : null,
     estado: 'activo',
     nivelEcologico: 'Eco Semilla',
     kgReciclados: 0,
@@ -158,6 +161,33 @@ const reenviar2FA = asyncHandler(async (req, res) => {
 });
 
 /**
+ * POST /api/auth/olvide-password (público)
+ * Genera una contraseña temporal nueva, la hashea y la envía por correo real.
+ * Nunca revela la contraseña en la respuesta HTTP: solo llega al correo del usuario.
+ */
+const olvidePassword = asyncHandler(async (req, res) => {
+  const { correo } = req.body;
+
+  const usuario = await usuariosRepo.buscarPorCorreo(correo);
+  if (!usuario) {
+    throw ApiError.notFound('No se encontró una cuenta con ese correo.', 'USUARIO_NO_ENCONTRADO');
+  }
+
+  const passwordTemporal = generarPasswordTemporal();
+  const passwordHash = await bcrypt.hash(passwordTemporal, RONDAS_BCRYPT);
+
+  await usuariosRepo.actualizar(usuario.id, { passwordHash, debeCambiarPassword: true });
+
+  await enviarCorreo({
+    to: usuario.correo,
+    subject: 'Restablecimiento de contraseña — EcoRutas Wanchaq',
+    html: plantillaPasswordTemporal(usuario.nombres, usuario.correo, passwordTemporal),
+  });
+
+  res.json({ success: true, message: `Se envió una contraseña temporal a ${usuario.correo}.` });
+});
+
+/**
  * POST /api/auth/logout
  * El JWT es stateless: no hay nada que invalidar en el servidor en esta fase.
  * El frontend simplemente descarta el token guardado.
@@ -177,4 +207,4 @@ const me = asyncHandler(async (req, res) => {
   res.json({ success: true, data: { usuario: usuariosRepo.aPublico(usuario) } });
 });
 
-module.exports = { registroCiudadano, login, verificar2FA, reenviar2FA, logout, me };
+module.exports = { registroCiudadano, login, verificar2FA, reenviar2FA, olvidePassword, logout, me };

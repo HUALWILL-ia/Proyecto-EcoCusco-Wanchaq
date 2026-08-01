@@ -105,6 +105,19 @@ async function obtenerMisRecolecciones() {
   return respuesta.data;
 }
 
+/**
+ * Historial de recolecciones de la zona del ciudadano autenticado.
+ * @param {{tipoResiduo?:string, desde?:string, hasta?:string, pagina?:number, porPagina?:number}} filtros
+ */
+async function obtenerHistorialReciclajeCiudadano(filtros = {}) {
+  const params = new URLSearchParams();
+  Object.entries(filtros).forEach(([clave, valor]) => {
+    if (valor !== undefined && valor !== null && valor !== '') params.set(clave, valor);
+  });
+  const query = params.toString();
+  return apiGet(`/recolecciones/mi-zona${query ? `?${query}` : ''}`);
+}
+
 async function getRutas() {
   return obtenerRutasSemilla();
 }
@@ -232,6 +245,7 @@ window.getRecolecciones = getRecolecciones;
 window.setRecolecciones = setRecolecciones;
 window.crearRecoleccion = crearRecoleccion;
 window.obtenerMisRecolecciones = obtenerMisRecolecciones;
+window.obtenerHistorialReciclajeCiudadano = obtenerHistorialReciclajeCiudadano;
 window.getRutas = getRutas;
 window.setRutas = setRutas;
 window.getRutaPorId = getRutaPorId;

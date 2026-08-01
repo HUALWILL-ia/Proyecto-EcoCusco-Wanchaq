@@ -27,12 +27,77 @@
   })();
 
   let rutaActiva = null;
+  let ciudadanosZona = [];
+  let ciudadanoSeleccionado = null;
+
+  const inputBuscadorCiudadano = document.getElementById('buscadorCiudadano');
+  const selectCiudadano = document.getElementById('ciudadano');
+  const estadoBusquedaCiudadano = document.getElementById('estadoBusquedaCiudadano');
+
+  async function cargarCiudadanosZona(zonaId) {
+    try {
+      ciudadanosZona = await obtenerCiudadanosPorZona(zonaId);
+      estadoBusquedaCiudadano.textContent = ciudadanosZona.length > 0
+        ? 'Identifica al vecino cuyo residuo recolectaste (opcional, pero recomendado).'
+        : 'No hay ciudadanos registrados en esta zona todavía.';
+    } catch (err) {
+      ciudadanosZona = [];
+      estadoBusquedaCiudadano.textContent = 'No se pudo cargar la lista de vecinos de la zona.';
+    }
+  }
+
+  function seleccionarCiudadano(ciudadano) {
+    ciudadanoSeleccionado = ciudadano;
+    inputBuscadorCiudadano.value = `${ciudadano.nombres} ${ciudadano.apellidos} — DNI ${ciudadano.dni}`;
+    selectCiudadano.style.display = 'none';
+    selectCiudadano.innerHTML = '';
+  }
+
+  inputBuscadorCiudadano.addEventListener('input', () => {
+    ciudadanoSeleccionado = null;
+    const texto = inputBuscadorCiudadano.value.trim().toLowerCase();
+    if (texto.length === 0) {
+      selectCiudadano.style.display = 'none';
+      selectCiudadano.innerHTML = '';
+      return;
+    }
+
+    const coincidencias = ciudadanosZona.filter((c) =>
+      `${c.nombres} ${c.apellidos}`.toLowerCase().includes(texto) ||
+      c.dni.includes(texto) ||
+      (c.direccion || '').toLowerCase().includes(texto)
+    );
+
+    if (coincidencias.length === 0) {
+      selectCiudadano.style.display = 'none';
+      selectCiudadano.innerHTML = '';
+      return;
+    }
+
+    selectCiudadano.innerHTML = coincidencias.map((c) => `
+      <option value="${c.id}">${c.nombres} ${c.apellidos} — DNI ${c.dni}${c.direccion ? ` — ${c.direccion}` : ''}</option>
+    `).join('');
+    selectCiudadano.style.display = '';
+  });
+
+  selectCiudadano.addEventListener('change', () => {
+    const ciudadano = ciudadanosZona.find((c) => String(c.id) === selectCiudadano.value);
+    if (ciudadano) seleccionarCiudadano(ciudadano);
+  });
+
+  const inputFecha = document.getElementById('fechaRecoleccion');
+  function fechaLocalISO(fecha) {
+    const offsetMs = fecha.getTimezoneOffset() * 60000;
+    return new Date(fecha.getTime() - offsetMs).toISOString().slice(0, 16);
+  }
+  inputFecha.value = fechaLocalISO(new Date());
 
   async function renderChecklist() {
     const contenedor = document.getElementById('checklistRuta');
     try {
       const rutas = await obtenerRutasPorOperador();
       rutaActiva = rutas.find((r) => r.estado !== 'completada') || rutas[0] || null;
+      if (rutaActiva) await cargarCiudadanosZona(rutaActiva.zona);
     } catch (err) {
       contenedor.innerHTML = `<div class="empty-state"><h3>No se pudo cargar tu ruta</h3><p>${err.message}</p></div>`;
       return;
@@ -114,10 +179,14 @@
   const errorKg = document.getElementById('errorKg');
   const btn = document.getElementById('btnRegistrar');
 
+  const errorFecha = document.getElementById('errorFecha');
+
   form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     errorKg.textContent = '';
     errorKg.classList.remove('show');
+    errorFecha.textContent = '';
+    errorFecha.classList.remove('show');
 
     const kg = Number(inputKg.value);
     if (!inputKg.value || kg <= 0) {
@@ -128,6 +197,14 @@
     }
     inputKg.classList.remove('is-invalid');
 
+    if (!inputFecha.value) {
+      inputFecha.classList.add('is-invalid');
+      errorFecha.textContent = 'La fecha y hora son obligatorias.';
+      errorFecha.classList.add('show');
+      return;
+    }
+    inputFecha.classList.remove('is-invalid');
+
     if (!rutaActiva) {
       mostrarToast('error', 'Sin ruta activa', 'No tienes una ruta asignada para registrar.');
       return;
@@ -136,17 +213,32 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Guardando...';
 
+    const teniaCiudadano = Boolean(ciudadanoSeleccionado);
+    const tipoResiduoTexto = selectTipo.value;
+
     try {
       await crearRecoleccion({
         rutaId: rutaActiva.id,
-        tipoResiduo: selectTipo.value,
+        usuarioId: ciudadanoSeleccionado ? ciudadanoSeleccionado.id : null,
+        tipoResiduo: tipoResiduoTexto,
         kg,
+        fecha: new Date(inputFecha.value).toISOString(),
         observaciones: document.getElementById('observaciones').value.trim(),
       });
 
       form.reset();
+      ciudadanoSeleccionado = null;
+      selectCiudadano.style.display = 'none';
+      selectCiudadano.innerHTML = '';
+      inputFecha.value = fechaLocalISO(new Date());
       renderHistorialHoy();
-      mostrarToast('success', 'Recolección registrada', `Se registraron ${kg} kg de ${selectTipo.value}.`);
+      mostrarToast(
+        'success',
+        'Recolección registrada',
+        teniaCiudadano
+          ? `Se registraron ${kg} kg de ${tipoResiduoTexto} y se notificó al ciudadano.`
+          : `Se registraron ${kg} kg de ${tipoResiduoTexto}.`
+      );
     } catch (err) {
       mostrarToast('error', 'No se pudo registrar la recolección', err.message);
     } finally {

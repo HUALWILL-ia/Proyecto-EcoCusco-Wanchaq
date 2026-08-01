@@ -106,7 +106,18 @@ const apiPut = (ruta, body, opciones) => apiRequest(ruta, { ...opciones, method:
 const apiPatch = (ruta, body, opciones) => apiRequest(ruta, { ...opciones, method: 'PATCH', body });
 const apiDelete = (ruta, opciones) => apiRequest(ruta, { ...opciones, method: 'DELETE' });
 
+/**
+ * Convierte una ruta relativa devuelta por la API (ej. "/uploads/foto.jpg",
+ * fotos de perfil o de incidencias) en una URL absoluta hacia el backend.
+ */
+function urlArchivo(rutaRelativa) {
+  if (!rutaRelativa) return null;
+  if (/^https?:\/\//.test(rutaRelativa)) return rutaRelativa;
+  return `${API_BASE_URL.replace(/\/api\/?$/, '')}${rutaRelativa}`;
+}
+
 window.API_BASE_URL = API_BASE_URL;
+window.urlArchivo = urlArchivo;
 window.apiRequest = apiRequest;
 window.apiGet = apiGet;
 window.apiPost = apiPost;

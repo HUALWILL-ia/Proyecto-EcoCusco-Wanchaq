@@ -1,5 +1,7 @@
 /**
- * pages/ciudadano-incidencias.js — Registro de incidencia por el ciudadano (Fase 2, backend real)
+ * pages/ciudadano-incidencias.js — Incidencias del ciudadano: "Reportar nueva"
+ * y "Mis incidencias" viven en una sola pantalla (incidencias.html) con tabs
+ * en JS vanilla, sin recargar la página.
  */
 
 (function () {
@@ -9,6 +11,48 @@
 
   construirNavbarCiudadano(sesion);
   insertarFooterInstitucional();
+
+  /* ---------------------------------------------------------------------- */
+  /* Tabs                                                                    */
+  /* ---------------------------------------------------------------------- */
+
+  const botonesTab = {
+    reportar: document.getElementById('tabBtnReportar'),
+    'mis-incidencias': document.getElementById('tabBtnMisIncidencias'),
+  };
+  const panelesTab = {
+    reportar: document.getElementById('panelReportar'),
+    'mis-incidencias': document.getElementById('panelMisIncidencias'),
+  };
+
+  let historialCargado = false;
+
+  function activarTab(nombre) {
+    Object.keys(botonesTab).forEach((clave) => {
+      const esActivo = clave === nombre;
+      botonesTab[clave].classList.toggle('active', esActivo);
+      botonesTab[clave].setAttribute('aria-selected', String(esActivo));
+      panelesTab[clave].classList.toggle('active', esActivo);
+    });
+    if (nombre === 'mis-incidencias' && !historialCargado) {
+      historialCargado = true;
+      cargarMisIncidencias();
+    }
+  }
+
+  botonesTab.reportar.addEventListener('click', () => activarTab('reportar'));
+  botonesTab['mis-incidencias'].addEventListener('click', () => activarTab('mis-incidencias'));
+  document.getElementById('btnIrAReportar').addEventListener('click', () => activarTab('reportar'));
+  document.getElementById('btnVerMisIncidencias').addEventListener('click', () => {
+    cerrarModal('modalConfirmacion');
+    activarTab('mis-incidencias');
+  });
+
+  if (window.location.hash === '#mis-incidencias') activarTab('mis-incidencias');
+
+  /* ---------------------------------------------------------------------- */
+  /* Panel "Reportar nueva"                                                  */
+  /* ---------------------------------------------------------------------- */
 
   const selectZona = document.getElementById('zona');
   let usuario = null;
@@ -56,6 +100,14 @@
     errores[campo].classList.add('show');
   }
 
+  const zonaCargaFoto = crearZonaCarga(document.getElementById('zonaCargaFotoIncidencia'), {
+    accept: 'image/*',
+    capture: 'environment',
+    maxSizeMB: 5,
+    esImagen: true,
+    textoFormatos: 'JPG, PNG o WEBP · máx. 5MB',
+  });
+
   const form = document.getElementById('formIncidencia');
   const btn = document.getElementById('btnEnviarIncidencia');
   const btnTexto = document.getElementById('btnEnviarIncidenciaTexto');
@@ -88,13 +140,15 @@
       datosFormulario.append('zona', campos.zona.value);
       datosFormulario.append('direccion', campos.direccion.value.trim());
       datosFormulario.append('descripcion', campos.descripcion.value.trim());
-      const archivoFoto = document.getElementById('foto').files[0];
+      const archivoFoto = zonaCargaFoto.obtenerArchivo();
       if (archivoFoto) datosFormulario.append('foto', archivoFoto);
 
       await crearIncidencia(datosFormulario);
 
       form.reset();
       if (usuario) selectZona.value = usuario.zona;
+      zonaCargaFoto.limpiar();
+      historialCargado = false; // fuerza recargar el historial la próxima vez que se abra la pestaña
       abrirModal('modalConfirmacion');
       mostrarToast('success', 'Reporte enviado', 'Tu incidencia fue registrada correctamente.');
     } catch (err) {
@@ -103,5 +157,66 @@
       btn.disabled = false;
       btnTexto.textContent = 'Enviar reporte';
     }
+  });
+
+  /* ---------------------------------------------------------------------- */
+  /* Panel "Mis incidencias"                                                 */
+  /* ---------------------------------------------------------------------- */
+
+  const POR_PAGINA = 5;
+  let paginaActual = 1;
+  let filtroEstado = '';
+  let todasIncidencias = [];
+
+  function listaFiltrada() {
+    return filtroEstado ? todasIncidencias.filter((i) => i.estado === filtroEstado) : todasIncidencias;
+  }
+
+  function renderHistorial() {
+    const lista = listaFiltrada();
+    const tbody = document.getElementById('tablaIncidencias');
+
+    if (lista.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">📭</div><h3>Sin incidencias</h3><p>No tienes reportes con este filtro.</p></div></td></tr>`;
+      document.getElementById('paginacion').innerHTML = '';
+      return;
+    }
+
+    const inicio = (paginaActual - 1) * POR_PAGINA;
+    const paginaLista = lista.slice(inicio, inicio + POR_PAGINA);
+
+    tbody.innerHTML = paginaLista.map((i) => `
+      <tr>
+        <td>${i.id}</td>
+        <td>${i.tipo}</td>
+        <td>${i.zona}</td>
+        <td>${formatearFecha(i.fecha)}</td>
+        <td>${badgeEstadoIncidencia(i.estado)}</td>
+      </tr>
+    `).join('');
+
+    renderPaginacion(document.getElementById('paginacion'), lista.length, POR_PAGINA, paginaActual, (p) => {
+      paginaActual = p;
+      renderHistorial();
+    });
+  }
+
+  async function cargarMisIncidencias() {
+    const tbody = document.getElementById('tablaIncidencias');
+    tbody.innerHTML = `<tr><td colspan="5"><div class="loading-overlay"><span class="spinner"></span> Cargando...</div></td></tr>`;
+    try {
+      todasIncidencias = (await obtenerMisIncidencias())
+        .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+      renderHistorial();
+    } catch (err) {
+      historialCargado = false;
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><h3>No se pudo cargar tu historial</h3><p>${err.message}</p></div></td></tr>`;
+    }
+  }
+
+  document.getElementById('filtroEstado').addEventListener('change', (ev) => {
+    filtroEstado = ev.target.value;
+    paginaActual = 1;
+    renderHistorial();
   });
 })();

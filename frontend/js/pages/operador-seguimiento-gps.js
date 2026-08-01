@@ -61,7 +61,7 @@
     mostrarBotonActivar();
   })();
 
-  function inicializarMapa() {
+  async function inicializarMapa() {
     const centro = camion?.ubicacionActual?.lat
       ? [camion.ubicacionActual.lat, camion.ubicacionActual.lng]
       : [-13.5292, -71.9550];
@@ -70,6 +70,14 @@
       attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 18,
     }).addTo(mapa);
+
+    try {
+      const zonas = await obtenerZonas();
+      const { leyenda } = dibujarPoligonosZonas(mapa, zonas, { zonaDestacadaId: camion ? camion.zonaAsignada : null });
+      renderLeyendaZonas(document.getElementById('leyendaZonas'), leyenda);
+    } catch (err) {
+      // El mapa sigue siendo útil sin los polígonos si la carga de zonas falla.
+    }
 
     const icono = L.divIcon({ html: '🚛', className: 'icono-camion-mapa', iconSize: [32, 32] });
     marcador = L.marker(centro, { icon: icono }).addTo(mapa);

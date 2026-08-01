@@ -20,7 +20,7 @@
     document.getElementById('zonaAsignada').value = zonaInfo ? zonaInfo.nombre : 'Sin zona asignada';
     document.getElementById('camionAsignado').value = camionInfo ? `${camionInfo.placa} — ${camionInfo.modelo}` : 'Sin camión asignado';
 
-    document.getElementById('avatarPerfil').textContent = (u.nombres[0] + u.apellidos[0]).toUpperCase();
+    document.getElementById('avatarPerfil').innerHTML = avatarHtml(u, 'avatar-lg');
     document.getElementById('nombrePerfil').textContent = `${u.nombres} ${u.apellidos}`;
     document.getElementById('rolPerfil').textContent = u.cargo || 'Operador de Recolección';
     document.getElementById('fechaRegistroPerfil').textContent = formatearFecha(u.creadoEl);
@@ -36,11 +36,44 @@
     }
   })();
 
+  crearZonaCarga(document.getElementById('zonaCargaFotoPerfil'), {
+    accept: 'image/*',
+    maxSizeMB: 5,
+    esImagen: true,
+    textoFormatos: 'JPG, PNG o WEBP · máx. 5MB',
+    subir: async (archivo, actualizarProgreso) => {
+      const actualizado = await subirFotoPerfilConProgreso(archivo, actualizarProgreso);
+      document.getElementById('avatarPerfil').innerHTML = avatarHtml(actualizado, 'avatar-lg');
+      actualizarFotoPerfilSesion(actualizado.fotoPerfil);
+      construirSidebar('operador', obtenerSesionActual());
+      mostrarToast('success', 'Foto actualizada', 'Tu foto de perfil se guardó correctamente.');
+      return { url: urlArchivo(actualizado.fotoPerfil) };
+    },
+  });
+
+  const inputTelefono = document.getElementById('telefono');
+  const errorTelefono = document.getElementById('errorTelefono');
+  inputTelefono.addEventListener('input', () => {
+    inputTelefono.value = inputTelefono.value.replace(/\D/g, '').slice(0, 9);
+  });
+
   document.getElementById('formPerfil').addEventListener('submit', async (ev) => {
     ev.preventDefault();
+    inputTelefono.classList.remove('is-invalid');
+    errorTelefono.textContent = '';
+    errorTelefono.classList.remove('show');
+
+    const vTelefono = validarCelular(inputTelefono.value);
+    if (!vTelefono.valido) {
+      inputTelefono.classList.add('is-invalid');
+      errorTelefono.textContent = vTelefono.mensaje;
+      errorTelefono.classList.add('show');
+      return;
+    }
+
     try {
       await actualizarMiPerfil({
-        telefono: document.getElementById('telefono').value.trim(),
+        telefono: vTelefono.valor,
       });
       mostrarToast('success', 'Perfil actualizado', 'Tus datos se guardaron correctamente.');
     } catch (err) {
@@ -69,6 +102,14 @@
     });
 
     let valido = true;
+
+    const vActual = validarCampoObligatorio(campos.passwordActual.value);
+    if (!vActual.valido) {
+      campos.passwordActual.classList.add('is-invalid');
+      errores.passwordActual.textContent = 'Ingresa tu contraseña actual.';
+      errores.passwordActual.classList.add('show');
+      valido = false;
+    }
 
     const vNueva = validarPassword(campos.passwordNueva.value);
     if (!vNueva.valido) {

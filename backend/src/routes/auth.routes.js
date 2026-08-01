@@ -18,8 +18,14 @@ router.post(
   [
     body('correo').isEmail().withMessage('Ingresa un correo electrónico válido.'),
     body('dni').matches(/^\d{8}$/).withMessage('El DNI debe tener exactamente 8 dígitos numéricos.'),
+    body('nombres').trim().notEmpty().withMessage('Los nombres son obligatorios.'),
+    body('apellidos').trim().notEmpty().withMessage('Los apellidos son obligatorios.'),
+    body('telefono').matches(/^9\d{8}$/).withMessage('Ingresa un celular peruano válido: 9 dígitos, debe empezar en 9.'),
     body('password').matches(PASSWORD_REGEX).withMessage('La contraseña debe tener mínimo 8 caracteres, con letras y números.'),
     body('zona').notEmpty().withMessage('Selecciona tu zona de residencia.'),
+    body('direccion').trim().notEmpty().withMessage('Ingresa tu dirección (calle/avenida y número).'),
+    body('latitud').optional({ nullable: true, checkFalsy: true }).isFloat({ min: -90, max: 90 }).withMessage('Latitud inválida.'),
+    body('longitud').optional({ nullable: true, checkFalsy: true }).isFloat({ min: -180, max: 180 }).withMessage('Longitud inválida.'),
   ],
   validate,
   auth.registroCiudadano
@@ -50,6 +56,13 @@ router.post(
   [body('correo').isEmail().withMessage('Correo inválido.')],
   validate,
   auth.reenviar2FA
+);
+
+router.post(
+  '/olvide-password',
+  [body('correo').isEmail().withMessage('Ingresa un correo electrónico válido.')],
+  validate,
+  auth.olvidePassword
 );
 
 router.post('/logout', auth.logout);

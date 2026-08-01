@@ -36,6 +36,22 @@ function validarDNI(dni) {
 }
 
 /**
+ * Celular peruano: 9 dígitos, siempre empieza en 9. Acepta el valor con
+ * espacios/guiones (como se ve en las cuentas semilla, ej. "984 512 340")
+ * y lo normaliza a solo dígitos antes de validar.
+ */
+function validarCelular(celular) {
+  const soloDigitos = (celular ?? '').replace(/\D/g, '');
+  if (soloDigitos.length === 0) {
+    return { valido: false, mensaje: 'El celular es obligatorio.' };
+  }
+  if (!/^9\d{8}$/.test(soloDigitos)) {
+    return { valido: false, mensaje: 'Ingresa un celular peruano válido: 9 dígitos, debe empezar en 9.' };
+  }
+  return { valido: true, valor: soloDigitos };
+}
+
+/**
  * Contraseña: mínimo 8 caracteres, al menos una letra y un número.
  */
 function validarPassword(password) {
@@ -117,6 +133,7 @@ function validarDNINoDuplicado(dni, listaUsuarios) {
 window.validarCampoObligatorio = validarCampoObligatorio;
 window.validarCorreo = validarCorreo;
 window.validarDNI = validarDNI;
+window.validarCelular = validarCelular;
 window.validarPassword = validarPassword;
 window.validarConfirmacionPassword = validarConfirmacionPassword;
 window.validarSeleccionZona = validarSeleccionZona;

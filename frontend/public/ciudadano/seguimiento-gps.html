@@ -35,10 +35,15 @@
         <div class="loading-overlay"><span class="spinner"></span> Localizando camión...</div>
       </div>
       <div class="alert alert-warning" id="avisoSenal" style="display:none; font-size:var(--fs-sm);">
-        ⚠️ Señal GPS no disponible. El operador no ha transmitido su ubicación en los últimos minutos.
+        <p class="mb-0">⚠️ Señal GPS no disponible. El operador no ha transmitido su ubicación en los últimos minutos.</p>
       </div>
       <div class="alert alert-info" style="font-size:var(--fs-sm);">
-        📡 La posición se actualiza en tiempo real apenas el operador transmite desde su celular (Socket.IO). Si no ves movimiento, es porque el camión aún no ha iniciado su recorrido o no transmite en este momento.
+        <p class="mb-0">📡 La posición se actualiza automáticamente mientras el camión esté en ruta. Si no ves movimiento, es porque aún no ha iniciado su recorrido.</p>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="mb-0">Zonas de recolección</h3></div>
+        <p class="text-muted" style="margin-top:calc(var(--space-2) * -1);">Tu zona aparece resaltada. Toca cualquier área del mapa para ver su horario.</p>
+        <div id="leyendaZonas" style="display:flex; flex-wrap:wrap; gap:var(--space-2);"></div>
       </div>
     </div>
   </div>

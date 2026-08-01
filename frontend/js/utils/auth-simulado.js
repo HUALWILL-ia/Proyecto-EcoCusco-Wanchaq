@@ -31,6 +31,7 @@ function guardarSesion(usuario, token) {
       correo: usuario.correo,
       cargo: usuario.cargo || null,
       zona: usuario.zona || usuario.zonaAsignada || null,
+      fotoPerfil: usuario.fotoPerfil || null,
     },
     creadaEl: Date.now(),
   };
@@ -40,6 +41,19 @@ function guardarSesion(usuario, token) {
 
 function obtenerSesionActual() {
   return Storage.get(STORAGE_KEYS.SESION, null);
+}
+
+/**
+ * Actualiza solo la foto de perfil dentro de la sesión guardada (tras subir
+ * una nueva desde perfil.html), para que el sidebar/navbar la reflejen sin
+ * necesidad de volver a iniciar sesión.
+ */
+function actualizarFotoPerfilSesion(fotoPerfil) {
+  const sesion = obtenerSesionActual();
+  if (!sesion) return null;
+  sesion.usuario.fotoPerfil = fotoPerfil;
+  Storage.set(STORAGE_KEYS.SESION, sesion);
+  return sesion;
 }
 
 /**
@@ -167,9 +181,40 @@ async function crearCuentaOperador(datos) {
   }
 }
 
+/**
+ * Creación de cuentas de administrador — exclusiva del panel admin.
+ * Mismo flujo que crearCuentaOperador(): contraseña temporal generada y
+ * enviada por correo por el backend; nunca viaja de vuelta al navegador.
+ * @param {{nombres, apellidos, dni, correo}} datos
+ */
+/**
+ * Solicita el restablecimiento de contraseña de una cuenta (propia o, si la
+ * invoca un admin desde el panel, en nombre de otro usuario). El backend
+ * genera una contraseña temporal y la envía solo por correo: nunca viaja de
+ * vuelta al navegador.
+ */
+async function olvidarPassword(correo) {
+  try {
+    const respuesta = await apiPost('/auth/olvide-password', { correo }, { autenticado: false });
+    return { ok: true, mensaje: respuesta.message };
+  } catch (err) {
+    return { ok: false, mensaje: err.message };
+  }
+}
+
+async function crearCuentaAdmin(datos) {
+  try {
+    const usuario = await crearAdministrador(datos);
+    return { ok: true, usuario, mensaje: `Se creó la cuenta y se enviaron las credenciales a ${usuario.correo}.` };
+  } catch (err) {
+    return { ok: false, mensaje: err.message };
+  }
+}
+
 window.rutaBaseRelativa = rutaBaseRelativa;
 window.guardarSesion = guardarSesion;
 window.obtenerSesionActual = obtenerSesionActual;
+window.actualizarFotoPerfilSesion = actualizarFotoPerfilSesion;
 window.cerrarSesion = cerrarSesion;
 window.protegerRuta = protegerRuta;
 window.iniciarLogin = iniciarLogin;
@@ -177,3 +222,5 @@ window.verificarCodigo2FA = verificarCodigo2FA;
 window.reenviarCodigo2FA = reenviarCodigo2FA;
 window.registrarCiudadano = registrarCiudadano;
 window.crearCuentaOperador = crearCuentaOperador;
+window.crearCuentaAdmin = crearCuentaAdmin;
+window.olvidarPassword = olvidarPassword;

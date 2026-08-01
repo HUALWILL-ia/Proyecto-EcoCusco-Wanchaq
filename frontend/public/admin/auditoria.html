@@ -24,16 +24,14 @@
         <button class="icon-btn sidebar-toggle" id="btnSidebarToggle" aria-label="Abrir menú">☰</button>
         <div class="topbar-title">
           <h1>Auditoría del sistema</h1>
-          <span>Historial de cambios generado automáticamente por triggers de PostgreSQL</span>
+          <span>Historial de cambios realizados en el sistema</span>
         </div>
       </div>
     </header>
 
     <main class="page-content">
       <div class="alert alert-info" style="font-size:var(--fs-sm);">
-        Cada fila proviene de la tabla <code>auditoria</code>, llenada automáticamente por triggers <code>AFTER INSERT/UPDATE/DELETE</code>
-        en PostgreSQL sobre <code>usuarios</code>, <code>recolecciones</code>, <code>incidencias</code>, <code>rutas</code> y <code>camiones</code>.
-        No es posible editarla desde la aplicación: es un registro de solo lectura.
+        <p class="mb-0">Este registro se genera automáticamente y es de solo lectura: no puede editarse desde la aplicación.</p>
       </div>
 
       <div class="card">
