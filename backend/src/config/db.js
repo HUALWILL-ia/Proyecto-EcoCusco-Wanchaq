@@ -25,6 +25,10 @@ const pool = new Pool({
   database: env.DB_NAME,
   user: env.DB_USER,
   password: env.DB_PASSWORD,
+  // Los proveedores de PostgreSQL gestionado (Neon, Render, Railway...)
+  // exigen SSL. rejectUnauthorized:false evita fallos por certificados
+  // intermedios que no están en la cadena de confianza por defecto de Node.
+  ssl: env.isProduction ? { rejectUnauthorized: false } : false,
 });
 
 pool.on('error', (err) => {
