@@ -228,7 +228,7 @@ accederán desde celulares reales, necesitas HTTPS. Opciones gratuitas:
   ngrok http 4000
   ```
   Usa la URL `https://xxxx.ngrok-free.app` como `API_BASE_URL` en
-  `frontend/js/utils/api.js` mientras pruebas desde el celular, y agrégala
+  `frontend/public/js/utils/api.js` mientras pruebas desde el celular, y agrégala
   también a `FRONTEND_URL`/CORS si sirves el frontend por otro túnel.
 
 **Para un despliegue más permanente (ambos con HTTPS automático y capa gratuita):**
@@ -238,7 +238,7 @@ accederán desde celulares reales, necesitas HTTPS. Opciones gratuitas:
   o cualquier PostgreSQL accesible por red), y usa la URL HTTPS que te den.
 - **Frontend:** [Vercel](https://vercel.com) o [Netlify](https://netlify.com)
   — despliega `frontend/public/` como sitio estático. Actualiza
-  `API_BASE_URL` en `frontend/js/utils/api.js` para que apunte a la URL
+  `API_BASE_URL` en `frontend/public/js/utils/api.js` para que apunte a la URL
   HTTPS de tu backend desplegado, y `FRONTEND_URL` en el `.env` del backend
   para que el CORS de producción solo permita ese origen.
 

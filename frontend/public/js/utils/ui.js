@@ -139,11 +139,11 @@ function nombreArchivoActual() {
 }
 
 /**
- * Prefijo relativo hacia frontend/assets/ según la profundidad de la página
- * actual (público/index.html vs público/admin|ciudadano|operador/*.html).
+ * Prefijo relativo hacia frontend/public/assets/ según la profundidad de la
+ * página actual (público/index.html vs público/admin|ciudadano|operador/*.html).
  */
 function prefijoAssets() {
-  return /\/(admin|ciudadano|operador)\//.test(window.location.pathname) ? '../../assets' : '../assets';
+  return /\/(admin|ciudadano|operador)\//.test(window.location.pathname) ? '../assets' : 'assets';
 }
 
 function iniciales(usuario) {
