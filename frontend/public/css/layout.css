@@ -242,8 +242,33 @@
 }
 
 @media (max-width: 768px) {
-  .navbar-links { display: none; }
+  /* Menú público de index.html: logo + hamburguesa quedan en la fila
+     visible; los enlaces de ancla y los botones "Iniciar sesión" /
+     "Regístrate" (.navbar-actions-public) se ocultan y el hamburguesa
+     los revela apilados en una fila propia (ver navbar-inner wrap +
+     index.js, que alterna el display de ambos a la vez). Sin esto, esas
+     dos filas de contenido no caben en un ancho de 360-414px y desbordan
+     todo el documento horizontalmente. */
+  .navbar-inner { flex-wrap: wrap; }
+  .navbar-links {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3) 0 0;
+    order: 3;
+  }
   .navbar-toggle { display: inline-flex; align-items: center; }
+  .navbar-actions-public {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    padding: var(--space-3) 0 var(--space-2);
+    order: 4;
+  }
   .footer-inner { grid-template-columns: 1fr; }
   .page-content { padding: var(--space-4); }
   .topbar { padding: 0 var(--space-4); }

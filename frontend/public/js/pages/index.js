@@ -22,9 +22,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const toggle = document.getElementById('btnNavToggle');
   const links = document.getElementById('navbarLinks');
+  const acciones = document.getElementById('navbarActionsPublic');
   if (toggle && links) {
     toggle.addEventListener('click', () => {
-      links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
+      const abrir = links.style.display !== 'flex';
+      links.style.display = abrir ? 'flex' : 'none';
+      if (acciones) acciones.style.display = abrir ? 'flex' : 'none';
     });
   }
 });
