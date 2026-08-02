@@ -472,6 +472,15 @@ table.data-table { width: 100%; border-collapse: collapse; font-size: var(--fs-s
 
 /* --- Iconos de mapa (Leaflet) -------------------------------------------------------- */
 .icono-camion-mapa { font-size: 1.6rem; text-align: center; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35)); }
+/* Camión de "tu zona" en el mapa general del ciudadano (seguimiento-gps.html):
+   más grande y con un aro verde de fondo para distinguirlo de inmediato entre
+   el resto de camiones activos, que se ven en tamaño normal/neutro. */
+.icono-camion-destacado {
+  font-size: 2.1rem;
+  background: radial-gradient(circle, rgba(44,154,84,0.28) 55%, transparent 75%);
+  border-radius: 50%;
+  filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4));
+}
 
 /* --- Logo institucional -------------------------------------------------------- */
 .brand-logo {

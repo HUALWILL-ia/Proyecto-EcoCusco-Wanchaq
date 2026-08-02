@@ -1,7 +1,9 @@
 /**
  * pages/ciudadano-seguimiento-gps.js — Mapa de seguimiento GPS en tiempo real (Fase 3)
- * Usa Leaflet.js para el mapa y Socket.IO para recibir la posición real del
- * camión apenas el operador la transmite desde su celular (sin polling).
+ * Usa Leaflet.js para el mapa y Socket.IO para recibir la posición real de
+ * CUALQUIER camión con ruta activa (no solo el de la zona del ciudadano),
+ * apenas el operador la transmite desde su celular (sin polling). El camión
+ * de la propia zona del ciudadano se resalta frente a los demás.
  */
 
 (function () {
@@ -15,20 +17,14 @@
   const UMBRAL_SENAL_PERDIDA_MS = 2 * 60 * 1000; // 2 minutos
 
   (async () => {
-    let usuario, miZona, camion, todasZonas = [], miPosicion = null;
+    let usuario, miZona, todasZonas = [], miPosicion = null, activos = [];
     try {
       ({ usuario } = await obtenerMiPerfil());
       miZona = await getZonaPorNombre(usuario.zona);
-      const camiones = await obtenerCamiones();
-      camion = miZona ? camiones.find((c) => c.zonaAsignada === miZona.id) : camiones[0];
       todasZonas = await obtenerZonas();
+      activos = await obtenerGPSActivos();
     } catch (err) {
       mostrarToast('error', 'No se pudo cargar la información del mapa', err.message);
-      return;
-    }
-
-    if (!camion) {
-      document.getElementById('infoCamion').innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚛</div><h3>Sin camión asignado</h3><p>Tu zona aún no tiene un vehículo asignado en este momento.</p></div>`;
       return;
     }
 
@@ -47,8 +43,8 @@
       miPosicion = null;
     }
 
-    const centro = camion.ubicacionActual.lat ? [camion.ubicacionActual.lat, camion.ubicacionActual.lng] : [-13.5292, -71.9550];
-    const mapa = L.map('mapaGps').setView(centro, 15);
+    const centroInicial = activos[0] ? [activos[0].lat, activos[0].lng] : [-13.5292, -71.9550];
+    const mapa = L.map('mapaGps').setView(centroInicial, 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 18,
@@ -57,60 +53,98 @@
     const { leyenda } = dibujarPoligonosZonas(mapa, todasZonas, { zonaDestacadaId: miZona ? miZona.id : null });
     renderLeyendaZonas(document.getElementById('leyendaZonas'), leyenda);
 
-    const iconoCamion = L.divIcon({ html: '🚛', className: 'icono-camion-mapa', iconSize: [32, 32] });
-    const marcador = L.marker(centro, { icon: iconoCamion }).addTo(mapa)
-      .bindPopup(`<strong>${camion.placa}</strong><br>${camion.modelo}`);
-
-    let marcadorCiudadano = null;
     if (miPosicion) {
-      marcadorCiudadano = L.marker([miPosicion.lat, miPosicion.lng], {
+      L.marker([miPosicion.lat, miPosicion.lng], {
         icon: L.divIcon({ html: '🏠', className: 'icono-camion-mapa', iconSize: [26, 26] }),
       }).addTo(mapa).bindPopup('Tu ubicación aproximada');
     }
 
-    let ultimaUbicacion = null;
+    // Un marcador por camión activo, indexado por camionId (camionId -> { marcador, ubicacion }).
+    const marcadores = new Map();
 
-    // Posición inicial conocida (antes de que llegue cualquier evento en vivo).
-    try {
-      const inicial = await obtenerGPSPorCamion(camion.id);
-      if (inicial) {
-        ultimaUbicacion = inicial;
-        marcador.setLatLng([inicial.lat, inicial.lng]);
-        mapa.panTo([inicial.lat, inicial.lng]);
-      }
-    } catch (err) {
-      // Sin ubicación inicial todavía: se queda con la referencia estática del camión.
+    function esDeMiZona(ubicacion) {
+      return miZona != null && ubicacion.zonaId != null && String(ubicacion.zonaId) === String(miZona.id);
     }
 
-    renderInfo();
+    function iconoPara(ubicacion) {
+      const destacado = esDeMiZona(ubicacion);
+      return L.divIcon({
+        html: '🚛',
+        className: destacado ? 'icono-camion-mapa icono-camion-destacado' : 'icono-camion-mapa',
+        iconSize: destacado ? [42, 42] : [26, 26],
+      });
+    }
+
+    function popupPara(ubicacion) {
+      return `
+        <strong>${ubicacion.placa || 'Camión'}</strong>${esDeMiZona(ubicacion) ? ' <span class="badge badge-success">Tu zona</span>' : ''}<br>
+        Zona: ${ubicacion.zonaNombre || 'Sin asignar'}<br>
+        Velocidad: ${ubicacion.velocidad !== null && ubicacion.velocidad !== undefined ? `${ubicacion.velocidad} km/h` : 'No disponible'}<br>
+        Última actualización: ${tiempoRelativo(ubicacion.fecha)}
+      `;
+    }
+
+    function upsertMarcador(ubicacion) {
+      if (!ubicacion || !ubicacion.camionId) return;
+      const existente = marcadores.get(ubicacion.camionId);
+      if (existente) {
+        existente.ubicacion = ubicacion;
+        existente.marcador.setLatLng([ubicacion.lat, ubicacion.lng]);
+        existente.marcador.setIcon(iconoPara(ubicacion));
+        existente.marcador.setPopupContent(popupPara(ubicacion));
+      } else {
+        const marcador = L.marker([ubicacion.lat, ubicacion.lng], { icon: iconoPara(ubicacion) })
+          .addTo(mapa)
+          .bindPopup(popupPara(ubicacion));
+        marcadores.set(ubicacion.camionId, { marcador, ubicacion });
+      }
+      if (esDeMiZona(ubicacion)) renderInfoMiZona(ubicacion);
+    }
+
+    activos.forEach(upsertMarcador);
+    if (activos.length > 0) {
+      const grupo = L.featureGroup(Array.from(marcadores.values(), (m) => m.marcador));
+      mapa.fitBounds(grupo.getBounds().pad(0.3));
+    }
+
+    renderInfoMiZona();
 
     // --- Tiempo real vía Socket.IO ---
     if (typeof io === 'function') {
       const socket = io(API_BASE_URL.replace(/\/api\/?$/, ''));
-      socket.on('connect', () => socket.emit('gps:suscribir', { camionId: camion.id }));
-      socket.on('gps:actualizacion', (ubicacion) => {
-        ultimaUbicacion = ubicacion;
-        marcador.setLatLng([ubicacion.lat, ubicacion.lng]);
-        mapa.panTo([ubicacion.lat, ubicacion.lng]);
-        renderInfo();
-      });
+      socket.on('connect', () => socket.emit('gps:suscribir', { todas: true }));
+      socket.on('gps:actualizacion', (ubicacion) => upsertMarcador(ubicacion));
     }
 
-    // Revisa cada 15s si la señal quedó desactualizada (sin depender de nuevos eventos).
-    setInterval(renderInfo, 15000);
+    // Revisa cada 15s si la señal de "mi zona" quedó desactualizada (sin depender de nuevos eventos).
+    setInterval(() => renderInfoMiZona(), 15000);
 
-    function renderInfo() {
+    function ubicacionMiZona() {
+      if (!miZona) return null;
+      for (const { ubicacion } of marcadores.values()) {
+        if (esDeMiZona(ubicacion)) return ubicacion;
+      }
+      return null;
+    }
+
+    function renderInfoMiZona(ubicacionForzada) {
       const contenedor = document.getElementById('infoCamion');
       const avisoSenal = document.getElementById('avisoSenal');
+      const ultimaUbicacion = ubicacionForzada || ubicacionMiZona();
+
+      if (!miZona) {
+        contenedor.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📍</div><h3>Sin zona registrada</h3><p>Tu cuenta no tiene una zona de residencia asignada.</p></div>`;
+        avisoSenal.style.display = 'none';
+        return;
+      }
 
       if (!ultimaUbicacion) {
         contenedor.innerHTML = `
-          <div class="card-header"><h3 class="mb-0">${camion.placa}</h3>${badgeEstadoCamion(camion.estado)}</div>
-          <p><strong>Modelo:</strong> ${camion.modelo}</p>
+          <div class="card-header"><h3 class="mb-0">Tu zona: ${miZona.nombre}</h3></div>
           <div class="empty-state">
             <div class="empty-state-icon">📡</div>
-            <h3>Aún sin transmisión</h3>
-            <p>El operador todavía no ha transmitido su ubicación real hoy.</p>
+            <h3>Sin camión transmitiendo en tu zona</h3>
+            <p>Ningún operador de tu zona está transmitiendo su ubicación en este momento. En el mapa puedes ver los demás camiones activos de otras zonas.</p>
           </div>
         `;
         avisoSenal.style.display = 'none';
@@ -132,9 +166,9 @@
       }
 
       contenedor.innerHTML = `
-        <div class="card-header"><h3 class="mb-0">${ultimaUbicacion.placa || camion.placa}</h3>${badgeEstadoCamion(camion.estado)}</div>
-        <p><strong>Modelo:</strong> ${camion.modelo}</p>
-        <p><strong>Zona:</strong> ${miZona ? miZona.nombre : '—'}</p>
+        <div class="card-header"><h3 class="mb-0">${ultimaUbicacion.placa || 'Camión'}</h3>${badgeEstadoCamion(ultimaUbicacion.camionEstado)}</div>
+        ${ultimaUbicacion.modelo ? `<p><strong>Modelo:</strong> ${ultimaUbicacion.modelo}</p>` : ''}
+        <p><strong>Zona:</strong> ${miZona.nombre}</p>
         <p><strong>Velocidad aproximada:</strong> ${ultimaUbicacion.velocidad !== null && ultimaUbicacion.velocidad !== undefined ? `${ultimaUbicacion.velocidad} km/h` : 'No disponible'}</p>
         ${etaHtml}
         <span class="badge ${senalPerdida ? 'badge-warning' : 'badge-success'}">${senalPerdida ? 'Señal no disponible' : 'En vivo'}</span>
@@ -143,6 +177,7 @@
     }
 
     function badgeEstadoCamion(estado) {
+      if (!estado) return '';
       return estado === 'operativo'
         ? '<span class="badge badge-success">Operativo</span>'
         : '<span class="badge badge-warning">En mantenimiento</span>';

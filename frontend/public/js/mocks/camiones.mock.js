@@ -86,6 +86,15 @@ async function obtenerGPSPorCamion(camionId) {
   return respuesta.data;
 }
 
+/**
+ * Posición actual de TODOS los camiones con ruta en curso, sin importar la
+ * zona (mapa general del ciudadano — ver cualquier operador activo).
+ */
+async function obtenerGPSActivos() {
+  const respuesta = await apiGet('/gps/activos');
+  return respuesta.data;
+}
+
 window.obtenerCamiones = obtenerCamiones;
 window.obtenerCamionesDisponibles = obtenerCamionesDisponibles;
 window.obtenerCamionPorId = obtenerCamionPorId;
@@ -96,3 +105,4 @@ window.eliminarCamion = eliminarCamion;
 window.actualizarGPS = actualizarGPS;
 window.obtenerGPSPorRuta = obtenerGPSPorRuta;
 window.obtenerGPSPorCamion = obtenerGPSPorCamion;
+window.obtenerGPSActivos = obtenerGPSActivos;

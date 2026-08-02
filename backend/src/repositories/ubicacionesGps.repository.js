@@ -73,4 +73,29 @@ async function obtenerPorCamion(camionId) {
   return mapRow(rows[0]);
 }
 
-module.exports = { upsert, obtenerPorRuta, obtenerPorCamion };
+/**
+ * Última ubicación conocida de TODOS los camiones cuya ruta está
+ * actualmente 'en_progreso'. La usa el mapa general del ciudadano, que ya
+ * no se limita al camión de su propia zona (ver ciudadano/seguimiento-gps.html):
+ * cualquier vecino puede ver cualquier operador activo en ese momento.
+ */
+async function obtenerActivas() {
+  const { rows } = await db.query(
+    `SELECT g.*, c.placa, c.modelo, c.estado AS camion_estado, r.zona_id, z.nombre AS zona_nombre
+     FROM ubicaciones_gps g
+     JOIN rutas r ON r.id = g.ruta_id
+     LEFT JOIN camiones c ON c.id = g.camion_id
+     LEFT JOIN zonas z ON z.id = r.zona_id
+     WHERE r.estado = 'en_progreso'
+     ORDER BY g.fecha DESC`
+  );
+  return rows.map((row) => ({
+    ...mapRow(row),
+    zonaId: row.zona_id,
+    zonaNombre: row.zona_nombre,
+    modelo: row.modelo || null,
+    camionEstado: row.camion_estado || null,
+  }));
+}
+
+module.exports = { upsert, obtenerPorRuta, obtenerPorCamion, obtenerActivas };

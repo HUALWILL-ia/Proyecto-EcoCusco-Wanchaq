@@ -27,6 +27,10 @@ io.on('connection', (socket) => {
     if (typeof payload === 'object' && payload !== null) {
       if (payload.rutaId) socket.join(`ruta:${payload.rutaId}`);
       if (payload.camionId) socket.join(`camion:${payload.camionId}`);
+      // Mapa general del ciudadano: recibe la ubicación de CUALQUIER camión
+      // con ruta activa, no solo el de su propia zona (ver
+      // ciudadano-seguimiento-gps.js).
+      if (payload.todas) socket.join('gps:activos');
     } else if (payload) {
       socket.join(`ruta:${payload}`);
     }

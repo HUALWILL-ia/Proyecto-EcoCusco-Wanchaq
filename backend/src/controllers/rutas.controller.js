@@ -181,12 +181,24 @@ const actualizarGPS = asyncHandler(async (req, res) => {
     ubicacionActual: { lat: ubicacion.lat, lng: ubicacion.lng },
   });
   ubicacion.placa = camionActualizado.placa;
+  ubicacion.modelo = camionActualizado.modelo;
+  ubicacion.camionEstado = camionActualizado.estado;
+
+  // Zona que cubre esta ruta: la necesita el mapa general del ciudadano
+  // (todas las rutas activas, no solo la suya) para mostrarla en el popup.
+  if (ruta.zona) {
+    const zona = await zonasRepo.buscarPorId(ruta.zona);
+    ubicacion.zonaId = ruta.zona;
+    ubicacion.zonaNombre = zona ? zona.nombre : null;
+  }
 
   const io = req.app.get('io');
   if (io) {
-    // Se emite a ambas salas: por ruta (la usa el admin) y por camión (la usa
-    // el ciudadano, que conoce el camión de su zona pero no puede listar rutas).
-    io.to(`ruta:${ruta.id}`).to(`camion:${usuario.camionAsignado}`).emit('gps:actualizacion', ubicacion);
+    // Se emite a tres salas: por ruta (la usa el admin), por camión (el
+    // ciudadano que solo conoce el camión de su zona) y "gps:activos" (el
+    // mapa general del ciudadano, que ve a CUALQUIER operador transmitiendo,
+    // sin importar la zona).
+    io.to(`ruta:${ruta.id}`).to(`camion:${usuario.camionAsignado}`).to('gps:activos').emit('gps:actualizacion', ubicacion);
   }
 
   res.json({ success: true, message: 'Ubicación actualizada.', data: ubicacion });
@@ -208,6 +220,16 @@ const obtenerGPSPorCamion = asyncHandler(async (req, res) => {
   res.json({ success: true, data: ubicacion });
 });
 
+/**
+ * GET /api/gps/activos — última posición conocida de TODOS los camiones con
+ * ruta en_progreso en este momento, sin importar su zona. La usa el mapa
+ * general del ciudadano (ver cualquier operador activo, no solo el de su
+ * propia zona); admin/operador pueden reusarlo igual si lo necesitan.
+ */
+const obtenerGPSActivos = asyncHandler(async (req, res) => {
+  res.json({ success: true, data: await gpsRepo.obtenerActivas() });
+});
+
 module.exports = {
   listar,
   obtenerPorId,
@@ -222,4 +244,5 @@ module.exports = {
   actualizarGPS,
   obtenerGPSPorRuta,
   obtenerGPSPorCamion,
+  obtenerGPSActivos,
 };

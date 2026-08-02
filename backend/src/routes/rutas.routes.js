@@ -50,6 +50,7 @@ gpsRouter.post(
   rutas.actualizarGPS
 );
 gpsRouter.get('/camion/:camionId', rutas.obtenerGPSPorCamion);
+gpsRouter.get('/activos', rutas.obtenerGPSActivos);
 gpsRouter.get('/:rutaId', roles(['admin']), rutas.obtenerGPSPorRuta);
 
 module.exports = { router, gpsRouter };
