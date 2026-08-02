@@ -249,7 +249,12 @@
      index.js, que alterna el display de ambos a la vez). Sin esto, esas
      dos filas de contenido no caben en un ancho de 360-414px y desbordan
      todo el documento horizontalmente. */
-  .navbar-inner { flex-wrap: wrap; }
+  /* .navbar tiene height fija (--navbar-height) para su estado normal de una
+     sola fila; al abrir el menú móvil el contenido pasa a varias filas y esa
+     altura fija lo recortaría, superponiéndose al contenido de abajo en vez
+     de empujarlo. */
+  .navbar { height: auto; min-height: var(--navbar-height); }
+  .navbar-inner { flex-wrap: wrap; padding-top: var(--space-3); padding-bottom: var(--space-3); }
   .navbar-links {
     display: none;
     width: 100%;
