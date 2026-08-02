@@ -37,7 +37,7 @@ async function crear(tipo) {
       tipo.nombre,
       tipo.descripcion,
       tipo.color || '#2c9a54',
-      tipo.icono || '🗑️',
+      tipo.icono || 'trash', // nombre de ícono Phosphor (ph-trash), no un emoji
       tipo.diasRecomendados || [],
       tipo.contenedor || 'Por definir',
     ]

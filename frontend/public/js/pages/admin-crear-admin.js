@@ -19,7 +19,7 @@
       const administradores = usuarios.filter((u) => u.rol === 'admin');
 
       if (administradores.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-state-icon">🛡️</div><h3>Sin administradores registrados</h3></div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-state-icon"><i class="ph ph-shield-check" aria-hidden="true"></i></div><h3>Sin administradores registrados</h3></div></td></tr>`;
         return;
       }
 
@@ -71,7 +71,7 @@
       const datos = await consultarDni(campos.dni.value);
       if (datos.nombres) campos.nombres.value = datos.nombres;
       if (datos.apellidos) campos.apellidos.value = datos.apellidos;
-      estadoBusquedaDni.textContent = '✅ Nombres y apellidos autocompletados. Puedes corregirlos si es necesario.';
+      estadoBusquedaDni.textContent = '<i class="ph-fill ph-check-circle" aria-hidden="true"></i> Nombres y apellidos autocompletados. Puedes corregirlos si es necesario.';
     } catch (err) {
       estadoBusquedaDni.textContent = `${err.message} (puedes seguir llenando el formulario manualmente).`;
     }

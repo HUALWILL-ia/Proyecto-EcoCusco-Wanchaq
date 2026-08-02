@@ -177,7 +177,7 @@
     const tbody = document.getElementById('tablaIncidencias');
 
     if (lista.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">📭</div><h3>Sin incidencias</h3><p>No tienes reportes con este filtro.</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon"><i class="ph ph-tray" aria-hidden="true"></i></div><h3>Sin incidencias</h3><p>No tienes reportes con este filtro.</p></div></td></tr>`;
       document.getElementById('paginacion').innerHTML = '';
       return;
     }

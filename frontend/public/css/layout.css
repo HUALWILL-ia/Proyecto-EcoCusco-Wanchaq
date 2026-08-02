@@ -327,7 +327,7 @@
 .institutional-bar .container { display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
 
 .hero {
-  background: linear-gradient(135deg, var(--color-institutional-900) 0%, var(--color-primary-800) 100%);
+  background: var(--color-institutional-900);
   color: #fff;
   padding: var(--space-9) 0;
 }
@@ -434,7 +434,7 @@
   grid-template-columns: 1fr 1fr;
 }
 .auth-visual {
-  background: linear-gradient(160deg, var(--color-institutional-900), var(--color-primary-800));
+  background: var(--color-institutional-900);
   color: #fff;
   padding: var(--space-8);
   display: flex;

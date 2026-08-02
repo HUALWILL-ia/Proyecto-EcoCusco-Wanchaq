@@ -40,11 +40,11 @@
     inicializarMapa();
 
     if (!camion) {
-      contenedorInfo.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚛</div><h3>Sin camión asignado</h3></div>`;
+      contenedorInfo.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><i class="ph ph-truck" aria-hidden="true"></i></div><h3>Sin camión asignado</h3></div>`;
       return;
     }
     if (!rutaActivaId) {
-      contenedorInfo.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🧭</div><h3>Sin ruta activa</h3><p>No se puede transmitir GPS sin una ruta asignada.</p></div>`;
+      contenedorInfo.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><i class="ph ph-compass" aria-hidden="true"></i></div><h3>Sin ruta activa</h3><p>No se puede transmitir GPS sin una ruta asignada.</p></div>`;
       return;
     }
 
@@ -88,7 +88,7 @@
       }
     }
 
-    const icono = L.divIcon({ html: '🚛', className: 'icono-camion-mapa', iconSize: [32, 32] });
+    const icono = L.divIcon({ html: '<i class="ph ph-truck" aria-hidden="true"></i>', className: 'icono-camion-mapa', iconSize: [32, 32] });
     marcador = L.marker(centro, { icon: icono }).addTo(mapa);
     if (camion) marcador.bindPopup(`<strong>${camion.placa}</strong>`);
   }
@@ -144,7 +144,7 @@
       3: 'La solicitud de ubicación tardó demasiado. Verifica tu señal GPS e inténtalo de nuevo.',
     };
 
-    contenedorInfo.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📍</div><h3>No se pudo activar el GPS</h3><p>${mensajes[error.code] || error.message}</p></div>`;
+    contenedorInfo.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><i class="ph ph-map-pin" aria-hidden="true"></i></div><h3>No se pudo activar el GPS</h3><p>${mensajes[error.code] || error.message}</p></div>`;
     tarjetaPermiso.style.display = '';
     document.getElementById('btnActivarGps').addEventListener('click', activarGeolocalizacion, { once: true });
   }

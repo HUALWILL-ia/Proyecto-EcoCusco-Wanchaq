@@ -24,6 +24,13 @@
   --color-accent-red: #c23b3b;
   --color-accent-blue: #2a6fb0;
 
+  /* Tonos oscuros de texto para usar SOLO sobre el fondo claro de su mismo
+     color (badges de estado): la versión "accent" no tiene contraste
+     suficiente (~3.3:1) sobre su propio fondo -bg, estas sí (>7:1). */
+  --color-warning-text: #8a5711;
+  --color-danger-text: #8f2323;
+  --color-info-text: #1d4f7d;
+
   /* Superficies */
   --color-bg: #f4f7f5;
   --color-bg-alt: #ffffff;
@@ -65,7 +72,7 @@
   --fw-regular: 400;
   --fw-medium: 500;
   --fw-semibold: 600;
-  --fw-bold: 700;
+  --fw-bold: 600; /* mismo peso que semibold a propósito: solo 2 pesos visibles en todo el sistema (400 y 600) */
 
   /* Espaciado */
   --space-1: 0.25rem;
@@ -79,14 +86,16 @@
   --space-9: 4rem;
 
   /* Bordes y sombras */
+  /* Escala unificada: 8px para inputs/botones, 12px para cards/modales. */
   --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
   --radius-full: 999px;
 
-  --shadow-sm: 0 1px 2px rgba(11, 31, 49, 0.06);
-  --shadow-md: 0 4px 12px rgba(11, 31, 49, 0.08);
-  --shadow-lg: 0 12px 32px rgba(11, 31, 49, 0.12);
+  /* Sombras planas y sutiles (nada de blur exagerado tipo "plantilla IA") */
+  --shadow-sm: 0 1px 2px rgba(11, 31, 49, 0.05);
+  --shadow-md: 0 2px 6px rgba(11, 31, 49, 0.08);
+  --shadow-lg: 0 4px 12px rgba(11, 31, 49, 0.12);
 
   /* Layout */
   --sidebar-width: 260px;

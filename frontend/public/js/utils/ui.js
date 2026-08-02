@@ -10,10 +10,10 @@
 /* ---------------------------------------------------------------------- */
 
 const TOAST_ICONOS = {
-  success: '✅',
-  error: '⛔',
-  warning: '⚠️',
-  info: 'ℹ️',
+  success: '<i class="ph-fill ph-check-circle" aria-hidden="true"></i>',
+  error: '<i class="ph ph-prohibit" aria-hidden="true"></i>',
+  warning: '<i class="ph ph-warning" aria-hidden="true"></i>',
+  info: '<i class="ph ph-info" aria-hidden="true"></i>',
 };
 
 function asegurarContenedorToasts() {
@@ -39,7 +39,7 @@ function mostrarToast(tipo, titulo, mensaje, duracionMs = 4500) {
   const toast = document.createElement('div');
   toast.className = `toast toast-${tipo}`;
   toast.innerHTML = `
-    <span class="toast-icon">${TOAST_ICONOS[tipo] || 'ℹ️'}</span>
+    <span class="toast-icon">${TOAST_ICONOS[tipo] || '<i class="ph ph-info" aria-hidden="true"></i>'}</span>
     <div class="toast-body">
       <div class="toast-title">${titulo}</div>
       <div class="toast-message">${mensaje}</div>
@@ -86,41 +86,41 @@ document.addEventListener('click', (ev) => {
 
 const NAV_ADMIN = [
   { grupo: 'Panel', items: [
-    { href: 'dashboard.html', icono: '📊', texto: 'Dashboard' },
+    { href: 'dashboard.html', icono: '<i class="ph ph-chart-bar" aria-hidden="true"></i>', texto: 'Dashboard' },
   ]},
   { grupo: 'Gestión', items: [
-    { href: 'usuarios.html', icono: '👥', texto: 'Usuarios' },
-    { href: 'crear-operador.html', icono: '➕', texto: 'Crear operador' },
-    { href: 'crear-admin.html', icono: '🛡️', texto: 'Crear administrador' },
-    { href: 'zonas.html', icono: '🗺️', texto: 'Zonas' },
-    { href: 'tipos-residuo.html', icono: '🗑️', texto: 'Tipos de residuo' },
-    { href: 'camiones.html', icono: '🚛', texto: 'Camiones' },
-    { href: 'rutas.html', icono: '🧭', texto: 'Rutas' },
+    { href: 'usuarios.html', icono: '<i class="ph ph-users" aria-hidden="true"></i>', texto: 'Usuarios' },
+    { href: 'crear-operador.html', icono: '<i class="ph ph-plus" aria-hidden="true"></i>', texto: 'Crear operador' },
+    { href: 'crear-admin.html', icono: '<i class="ph ph-shield-check" aria-hidden="true"></i>', texto: 'Crear administrador' },
+    { href: 'zonas.html', icono: '<i class="ph ph-map-trifold" aria-hidden="true"></i>', texto: 'Zonas' },
+    { href: 'tipos-residuo.html', icono: '<i class="ph ph-trash" aria-hidden="true"></i>', texto: 'Tipos de residuo' },
+    { href: 'camiones.html', icono: '<i class="ph ph-truck" aria-hidden="true"></i>', texto: 'Camiones' },
+    { href: 'rutas.html', icono: '<i class="ph ph-compass" aria-hidden="true"></i>', texto: 'Rutas' },
   ]},
   { grupo: 'Operación', items: [
-    { href: 'incidencias.html', icono: '🚨', texto: 'Incidencias' },
-    { href: 'historial-recolecciones.html', icono: '📋', texto: 'Historial de recolecciones' },
-    { href: 'reportes.html', icono: '📈', texto: 'Reportes' },
+    { href: 'incidencias.html', icono: '<i class="ph ph-warning-circle" aria-hidden="true"></i>', texto: 'Incidencias' },
+    { href: 'historial-recolecciones.html', icono: '<i class="ph ph-clipboard-text" aria-hidden="true"></i>', texto: 'Historial de recolecciones' },
+    { href: 'reportes.html', icono: '<i class="ph ph-trend-up" aria-hidden="true"></i>', texto: 'Reportes' },
   ]},
   { grupo: 'Sistema', items: [
-    { href: 'auditoria.html', icono: '🕵️', texto: 'Auditoría' },
-    { href: 'configuracion-seguridad.html', icono: '🔒', texto: 'Seguridad' },
+    { href: 'auditoria.html', icono: '<i class="ph ph-magnifying-glass" aria-hidden="true"></i>', texto: 'Auditoría' },
+    { href: 'configuracion-seguridad.html', icono: '<i class="ph ph-shield-check" aria-hidden="true"></i>', texto: 'Seguridad' },
   ]},
 ];
 
 const NAV_OPERADOR = [
   { grupo: 'Panel', items: [
-    { href: 'dashboard.html', icono: '📊', texto: 'Dashboard' },
+    { href: 'dashboard.html', icono: '<i class="ph ph-chart-bar" aria-hidden="true"></i>', texto: 'Dashboard' },
   ]},
   { grupo: 'Operación diaria', items: [
-    { href: 'rutas.html', icono: '🧭', texto: 'Mis rutas' },
-    { href: 'registro-recoleccion.html', icono: '✅', texto: 'Registrar recolección' },
-    { href: 'incidencias.html', icono: '🚨', texto: 'Reportar incidencia' },
-    { href: 'seguimiento-gps.html', icono: '📍', texto: 'Seguimiento GPS' },
+    { href: 'rutas.html', icono: '<i class="ph ph-compass" aria-hidden="true"></i>', texto: 'Mis rutas' },
+    { href: 'registro-recoleccion.html', icono: '<i class="ph-fill ph-check-circle" aria-hidden="true"></i>', texto: 'Registrar recolección' },
+    { href: 'incidencias.html', icono: '<i class="ph ph-warning-circle" aria-hidden="true"></i>', texto: 'Reportar incidencia' },
+    { href: 'seguimiento-gps.html', icono: '<i class="ph ph-map-pin" aria-hidden="true"></i>', texto: 'Seguimiento GPS' },
   ]},
   { grupo: 'Configuración', items: [
-    { href: 'perfil.html', icono: '👤', texto: 'Mi perfil' },
-    { href: 'configuracion-gps.html', icono: '⚙️', texto: 'Configuración GPS' },
+    { href: 'perfil.html', icono: '<i class="ph ph-user-circle" aria-hidden="true"></i>', texto: 'Mi perfil' },
+    { href: 'configuracion-gps.html', icono: '<i class="ph ph-gear" aria-hidden="true"></i>', texto: 'Configuración GPS' },
   ]},
 ];
 
@@ -205,7 +205,7 @@ function construirSidebar(rol, sesion) {
           <span>${sesion.usuario.cargo || (rol === 'admin' ? 'Administrador' : 'Operador')}</span>
         </div>
       </div>
-      <button class="btn btn-ghost btn-block btn-sm" id="btnCerrarSesion">🚪 Cerrar sesión</button>
+      <button class="btn btn-ghost btn-block btn-sm" id="btnCerrarSesion"><i class="ph ph-sign-out" aria-hidden="true"></i> Cerrar sesión</button>
     </div>
   `;
 
@@ -236,7 +236,7 @@ function construirNavbarCiudadano(sesion) {
           <span>Municipalidad Distrital de Wanchaq</span>
         </div>
       </a>
-      <button class="navbar-toggle" id="btnNavToggle" aria-label="Abrir menú">☰</button>
+      <button class="navbar-toggle" id="btnNavToggle" aria-label="Abrir menú"><i class="ph ph-list" aria-hidden="true"></i></button>
       <ul class="navbar-links" id="navbarLinks">${linksHtml}</ul>
       <div class="navbar-actions">
         <a href="perfil.html" class="navbar-user">
@@ -278,10 +278,10 @@ function footerInstitucionalHTML() {
       <div class="footer-col">
         <div class="footer-title">Gerencia de Gestión Ambiental</div>
         <ul>
-          <li>📍 Av. Los Incas 500, Wanchaq, Cusco</li>
-          <li>📞 (084) 234 567 — Anexo 105</li>
-          <li>✉️ gestionambiental@munwanchaq.gob.pe</li>
-          <li>🕗 Lun. a Vie. de 07:30 a 16:00 h</li>
+          <li><i class="ph ph-map-pin" aria-hidden="true"></i> Av. Los Incas 500, Wanchaq, Cusco</li>
+          <li><i class="ph ph-phone" aria-hidden="true"></i> (084) 234 567 — Anexo 105</li>
+          <li><i class="ph ph-envelope-simple" aria-hidden="true"></i> gestionambiental@munwanchaq.gob.pe</li>
+          <li><i class="ph ph-clock" aria-hidden="true"></i> Lun. a Vie. de 07:30 a 16:00 h</li>
         </ul>
       </div>
       <div class="footer-col">
@@ -414,7 +414,7 @@ function dibujarTrazadoRuta(mapa, ruta) {
       .sort((a, b) => a.orden - b.orden)
       .forEach((p) => {
         const icono = L.divIcon({
-          html: p.completado ? '✅' : '📍',
+          html: p.completado ? '<i class="ph-fill ph-check-circle" aria-hidden="true"></i>' : '<i class="ph ph-map-pin" aria-hidden="true"></i>',
           className: 'icono-punto-recojo',
           iconSize: [20, 20],
         });
@@ -440,7 +440,7 @@ function renderLeyendaZonas(contenedor, leyenda) {
   }
   contenedor.innerHTML = leyenda.map((item) => `
     <span class="badge" style="background:${item.color}22; color:${item.color}; border:1px solid ${item.color}; ${item.destacada ? 'font-weight:700;' : ''}">
-      ${item.destacada ? '📍 ' : ''}${item.nombre}
+      ${item.destacada ? '<i class="ph ph-map-pin" aria-hidden="true"></i> ' : ''}${item.nombre}
     </span>
   `).join(' ');
 }

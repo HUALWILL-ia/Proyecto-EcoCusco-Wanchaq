@@ -38,17 +38,17 @@
 
     document.getElementById('kpiHistorial').innerHTML = `
       <div class="kpi-card">
-        <div class="kpi-icon">⚖️</div>
+        <div class="kpi-icon"><i class="ph ph-scales" aria-hidden="true"></i></div>
         <span class="kpi-label">Total histórico</span>
         <span class="kpi-value">${totalKg.toLocaleString('es-PE')} kg</span>
       </div>
       <div class="kpi-card kpi-info">
-        <div class="kpi-icon">📅</div>
+        <div class="kpi-icon"><i class="ph ph-calendar" aria-hidden="true"></i></div>
         <span class="kpi-label">Recolectado hoy</span>
         <span class="kpi-value">${kgHoy.toLocaleString('es-PE')} kg</span>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon">📋</div>
+        <div class="kpi-icon"><i class="ph ph-clipboard-text" aria-hidden="true"></i></div>
         <span class="kpi-label">Registros totales</span>
         <span class="kpi-value">${todosRegistros.length}</span>
       </div>

@@ -201,10 +201,10 @@ select.form-control { appearance: none; background-image: url("data:image/svg+xm
   line-height: 1.4;
 }
 .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.badge-success { background: var(--color-success-bg); color: var(--color-success); }
-.badge-warning { background: var(--color-warning-bg); color: var(--color-warning); }
-.badge-danger  { background: var(--color-danger-bg); color: var(--color-danger); }
-.badge-info    { background: var(--color-info-bg); color: var(--color-info); }
+.badge-success { background: var(--color-success-bg); color: var(--color-primary-800); }
+.badge-warning { background: var(--color-warning-bg); color: var(--color-warning-text); }
+.badge-danger  { background: var(--color-danger-bg); color: var(--color-danger-text); }
+.badge-info    { background: var(--color-info-bg); color: var(--color-info-text); }
 .badge-neutral { background: var(--color-surface-muted); color: var(--color-text-secondary); }
 
 /* --- Tablas -------------------------------------------------------- */

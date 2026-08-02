@@ -73,7 +73,7 @@
           latitud: posicion.coords.latitude,
           longitud: posicion.coords.longitude,
         };
-        estadoUbicacion.textContent = `✅ Ubicación capturada: ${ubicacionCapturada.latitud.toFixed(5)}, ${ubicacionCapturada.longitud.toFixed(5)} — recuerda hacer clic en "Guardar cambios".`;
+        estadoUbicacion.textContent = `<i class="ph-fill ph-check-circle" aria-hidden="true"></i> Ubicación capturada: ${ubicacionCapturada.latitud.toFixed(5)}, ${ubicacionCapturada.longitud.toFixed(5)} — recuerda hacer clic en "Guardar cambios".`;
         btnUsarUbicacion.disabled = false;
       },
       (error) => {

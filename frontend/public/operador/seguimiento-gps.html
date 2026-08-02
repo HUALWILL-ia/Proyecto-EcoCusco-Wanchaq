@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="../css/layout.css">
 <style>#mapaGpsOperador { width:100%; height:480px; border-radius:var(--radius-lg); z-index:1; }</style>
 <link rel="icon" type="image/png" href="../assets/logos/Logo_solo_hoja.png">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
 
@@ -23,7 +24,7 @@
   <div class="main-content">
     <header class="topbar">
       <div class="flex items-center gap-3">
-        <button class="icon-btn sidebar-toggle" id="btnSidebarToggle" aria-label="Abrir menú">☰</button>
+        <button class="icon-btn sidebar-toggle" id="btnSidebarToggle" aria-label="Abrir menú"><i class="ph ph-list" aria-hidden="true"></i></button>
         <div class="topbar-title">
           <h1>Mi seguimiento GPS</h1>
           <span>Ubicación real de tu celular durante la ruta</span>
@@ -42,7 +43,7 @@
         <div class="stack">
           <div class="card" id="permisoGpsCard" style="display:none;">
             <div class="empty-state">
-              <div class="empty-state-icon">📍</div>
+              <div class="empty-state-icon"><i class="ph ph-map-pin" aria-hidden="true"></i></div>
               <h3>Se necesita tu ubicación</h3>
               <p>Para transmitir tu posición en tiempo real, el navegador debe pedirte permiso de ubicación. Acepta el permiso cuando aparezca el aviso.</p>
               <button class="btn btn-primary" id="btnActivarGps">Activar GPS</button>
@@ -52,7 +53,7 @@
             <div class="loading-overlay"><span class="spinner"></span> Solicitando ubicación...</div>
           </div>
           <div class="alert alert-info" style="font-size:var(--fs-sm);">
-            <p class="mb-0">📡 Tu posición se transmite al sistema municipal automáticamente mientras esta pantalla esté abierta. Ajusta la frecuencia de envío en <a href="configuracion-gps.html">Configuración GPS</a>.</p>
+            <p class="mb-0"><i class="ph ph-broadcast" aria-hidden="true"></i> Tu posición se transmite al sistema municipal automáticamente mientras esta pantalla esté abierta. Ajusta la frecuencia de envío en <a href="configuracion-gps.html">Configuración GPS</a>.</p>
           </div>
           <div class="card">
             <div class="card-header"><h3 class="mb-0">Zonas de recolección</h3></div>

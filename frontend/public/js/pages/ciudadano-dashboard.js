@@ -12,7 +12,7 @@ const NIVELES_ECOLOGICOS = ['Eco Semilla', 'Eco Bronce', 'Eco Plata', 'Eco Oro',
   construirNavbarCiudadano(sesion);
   insertarFooterInstitucional();
 
-  document.getElementById('saludoUsuario').textContent = `Hola, ${sesion.usuario.nombres} 👋`;
+  document.getElementById('saludoUsuario').textContent = `Hola, ${sesion.usuario.nombres} `;
   document.getElementById('fechaHoy').textContent = formatearFechaHora(new Date().toISOString());
 
   (async () => {
@@ -36,19 +36,19 @@ const NIVELES_ECOLOGICOS = ['Eco Semilla', 'Eco Bronce', 'Eco Plata', 'Eco Oro',
     const grid = document.getElementById('kpiGrid');
     grid.innerHTML = `
       <div class="kpi-card">
-        <div class="kpi-icon">♻️</div>
+        <div class="kpi-icon"><i class="ph ph-recycle" aria-hidden="true"></i></div>
         <span class="kpi-label">Kg reciclados</span>
         <span class="kpi-value">${(usuario.kgReciclados ?? 0).toFixed(1)} kg</span>
-        <span class="kpi-trend up">▲ Acumulado histórico</span>
+        <span class="kpi-trend up"><i class="ph-fill ph-trend-up" aria-hidden="true"></i> Acumulado histórico</span>
       </div>
       <div class="kpi-card kpi-info">
-        <div class="kpi-icon">🌱</div>
+        <div class="kpi-icon"><i class="ph-fill ph-plant" aria-hidden="true"></i></div>
         <span class="kpi-label">Nivel ecológico</span>
         <span class="kpi-value" style="font-size:var(--fs-xl);">${usuario.nivelEcologico || 'Eco Semilla'}</span>
         <span class="kpi-trend">Zona: ${usuario.zona || '—'}</span>
       </div>
       <div class="kpi-card ${incidenciasActivas > 0 ? 'kpi-warning' : ''}">
-        <div class="kpi-icon">🚨</div>
+        <div class="kpi-icon"><i class="ph ph-warning-circle" aria-hidden="true"></i></div>
         <span class="kpi-label">Incidencias activas</span>
         <span class="kpi-value">${incidenciasActivas}</span>
         <span class="kpi-trend">${incidenciasActivas > 0 ? 'En seguimiento' : 'Sin pendientes'}</span>
@@ -67,13 +67,13 @@ const NIVELES_ECOLOGICOS = ['Eco Semilla', 'Eco Bronce', 'Eco Plata', 'Eco Oro',
     }
 
     if (!zona) {
-      contenedor.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🗺️</div><h3>Zona no configurada</h3><p>Actualiza tu perfil para ver tu horario de recolección.</p></div>`;
+      contenedor.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><i class="ph ph-map-trifold" aria-hidden="true"></i></div><h3>Zona no configurada</h3><p>Actualiza tu perfil para ver tu horario de recolección.</p></div>`;
       return;
     }
 
     contenedor.innerHTML = `
       <div class="flex items-center gap-4" style="flex-wrap:wrap;">
-        <div class="kpi-icon" style="width:56px;height:56px;font-size:1.6rem;">🚛</div>
+        <div class="kpi-icon" style="width:56px;height:56px;font-size:1.6rem;"><i class="ph ph-truck" aria-hidden="true"></i></div>
         <div>
           <h3 style="margin-bottom:4px;">${zona.nombre}</h3>
           <p class="mb-0">${zona.horarioRecoleccion}</p>
@@ -81,7 +81,7 @@ const NIVELES_ECOLOGICOS = ['Eco Semilla', 'Eco Bronce', 'Eco Plata', 'Eco Oro',
         </div>
       </div>
       <hr>
-      <p class="text-muted mb-0">📍 Referencia: ${zona.referencia}</p>
+      <p class="text-muted mb-0"><i class="ph ph-map-pin" aria-hidden="true"></i> Referencia: ${zona.referencia}</p>
     `;
   }
 
@@ -101,7 +101,7 @@ const NIVELES_ECOLOGICOS = ['Eco Semilla', 'Eco Bronce', 'Eco Plata', 'Eco Oro',
   function renderFeedIncidencias(incidencias) {
     const feed = document.getElementById('feedIncidencias');
     if (incidencias.length === 0) {
-      feed.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✅</div><h3>Sin incidencias reportadas</h3></div>`;
+      feed.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><i class="ph-fill ph-check-circle" aria-hidden="true"></i></div><h3>Sin incidencias reportadas</h3></div>`;
       return;
     }
     feed.innerHTML = incidencias.slice(0, 4).map((inc) => `

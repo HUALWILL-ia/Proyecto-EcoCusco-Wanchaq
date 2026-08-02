@@ -63,7 +63,7 @@
     }
 
     if (rutas.length === 0) {
-      contenedor.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-state-icon">🧭</div><h3>Sin rutas asignadas</h3><p>Tu coordinador aún no te ha asignado una ruta.</p></div></div>`;
+      contenedor.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-state-icon"><i class="ph ph-compass" aria-hidden="true"></i></div><h3>Sin rutas asignadas</h3><p>Tu coordinador aún no te ha asignado una ruta.</p></div></div>`;
       return;
     }
 
@@ -113,10 +113,10 @@
           </table>
         </div>
         <div class="flex items-center gap-2 mt-3" style="flex-wrap:wrap;">
-          <button class="btn btn-secondary btn-sm" data-accion="iniciar" data-id="${ruta.id}" ${iniciada || finalizada ? 'disabled' : ''}>▶️ Iniciar ruta</button>
-          <button class="btn btn-danger btn-sm" data-accion="finalizar" data-id="${ruta.id}" ${!iniciada || finalizada ? 'disabled' : ''}>⏹️ Finalizar ruta</button>
+          <button class="btn btn-secondary btn-sm" data-accion="iniciar" data-id="${ruta.id}" ${iniciada || finalizada ? 'disabled' : ''}><i class="ph-bold ph-play" aria-hidden="true"></i> Iniciar ruta</button>
+          <button class="btn btn-danger btn-sm" data-accion="finalizar" data-id="${ruta.id}" ${!iniciada || finalizada ? 'disabled' : ''}><i class="ph-bold ph-stop" aria-hidden="true"></i> Finalizar ruta</button>
           <a href="registro-recoleccion.html" class="btn btn-primary btn-sm">Registrar recolección</a>
-          ${transmitiendo ? '<span class="badge badge-success">📍 GPS activo — transmitiendo ubicación</span>' : ''}
+          ${transmitiendo ? '<span class="badge badge-success"><i class="ph-bold ph-navigation-arrow" aria-hidden="true"></i> GPS activo — transmitiendo ubicación</span>' : ''}
         </div>
       </div>
     `;

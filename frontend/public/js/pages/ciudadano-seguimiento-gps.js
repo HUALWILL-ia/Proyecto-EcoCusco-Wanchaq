@@ -55,7 +55,7 @@
 
     if (miPosicion) {
       L.marker([miPosicion.lat, miPosicion.lng], {
-        icon: L.divIcon({ html: '🏠', className: 'icono-camion-mapa', iconSize: [26, 26] }),
+        icon: L.divIcon({ html: '<i class="ph ph-house" aria-hidden="true"></i>', className: 'icono-camion-mapa', iconSize: [26, 26] }),
       }).addTo(mapa).bindPopup('Tu ubicación aproximada');
     }
 
@@ -67,8 +67,8 @@
       div.innerHTML = `
         <div><span class="leyenda-muestra-zona"></span>Zona</div>
         <div><span class="leyenda-muestra-linea"></span>Línea de ruta</div>
-        <div><span>📍</span>Punto de recojo</div>
-        <div><span>🚛</span>Camión en movimiento</div>
+        <div><span><i class="ph ph-map-pin" aria-hidden="true"></i></span>Punto de recojo</div>
+        <div><span><i class="ph ph-truck" aria-hidden="true"></i></span>Camión en movimiento</div>
       `;
       return div;
     };
@@ -84,7 +84,7 @@
     function iconoPara(ubicacion) {
       const destacado = esDeMiZona(ubicacion);
       return L.divIcon({
-        html: '🚛',
+        html: '<i class="ph ph-truck" aria-hidden="true"></i>',
         className: destacado ? 'icono-camion-mapa icono-camion-destacado' : 'icono-camion-mapa',
         iconSize: destacado ? [42, 42] : [26, 26],
       });
@@ -184,7 +184,7 @@
       const ultimaUbicacion = ubicacionForzada || ubicacionMiZona();
 
       if (!miZona) {
-        contenedor.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📍</div><h3>Sin zona registrada</h3><p>Tu cuenta no tiene una zona de residencia asignada.</p></div>`;
+        contenedor.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><i class="ph ph-map-pin" aria-hidden="true"></i></div><h3>Sin zona registrada</h3><p>Tu cuenta no tiene una zona de residencia asignada.</p></div>`;
         avisoSenal.style.display = 'none';
         return;
       }
@@ -193,7 +193,7 @@
         contenedor.innerHTML = `
           <div class="card-header"><h3 class="mb-0">Tu zona: ${miZona.nombre}</h3></div>
           <div class="empty-state">
-            <div class="empty-state-icon">📡</div>
+            <div class="empty-state-icon"><i class="ph ph-broadcast" aria-hidden="true"></i></div>
             <h3>Sin camión transmitiendo en tu zona</h3>
             <p>Ningún operador de tu zona está transmitiendo su ubicación en este momento. En el mapa puedes ver los demás camiones activos de otras zonas.</p>
           </div>

@@ -33,13 +33,13 @@
     const miZonaCard = document.getElementById('miZonaCard');
     if (miZona) {
       miZonaCard.innerHTML = `
-        <div class="card-header"><h2 class="mb-0">📍 Tu zona: ${miZona.nombre}</h2></div>
+        <div class="card-header"><h2 class="mb-0"><i class="ph ph-map-pin" aria-hidden="true"></i> Tu zona: ${miZona.nombre}</h2></div>
         <p><strong>Horario:</strong> ${miZona.horarioRecoleccion}</p>
         <p><strong>Referencia:</strong> ${miZona.referencia}</p>
         <span class="badge badge-info">Residuo principal: ${miZona.tipoResiduoPrincipal}</span>
       `;
     } else {
-      miZonaCard.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🗺️</div><h3>No tienes una zona configurada</h3><p>Actualízala desde tu <a href="perfil.html">perfil</a>.</p></div>`;
+      miZonaCard.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><i class="ph ph-map-trifold" aria-hidden="true"></i></div><h3>No tienes una zona configurada</h3><p>Actualízala desde tu <a href="perfil.html">perfil</a>.</p></div>`;
     }
   }
 
@@ -50,7 +50,7 @@
       const card = document.createElement('div');
       card.className = 'feature-card';
       card.innerHTML = `
-        <div class="icon" style="background:${tipo.color}22; color:${tipo.color};">${tipo.icono}</div>
+        <div class="icon" style="background:${tipo.color}22; color:${tipo.color};"><i class="ph ph-${tipo.icono}" aria-hidden="true"></i></div>
         <h3>${tipo.nombre}</h3>
         <p>${tipo.descripcion}</p>
         <p class="text-muted mb-0"><strong>Días:</strong> ${tipo.diasRecomendados.join(', ')}</p>

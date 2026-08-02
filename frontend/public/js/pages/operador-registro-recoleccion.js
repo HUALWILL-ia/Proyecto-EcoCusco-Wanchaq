@@ -104,7 +104,7 @@
     }
 
     if (!rutaActiva) {
-      contenedor.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🧭</div><h3>Sin ruta activa</h3></div>`;
+      contenedor.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><i class="ph ph-compass" aria-hidden="true"></i></div><h3>Sin ruta activa</h3></div>`;
       return;
     }
 

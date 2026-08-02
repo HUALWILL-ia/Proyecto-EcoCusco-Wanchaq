@@ -33,7 +33,7 @@
 
     grid.innerHTML = tiposActuales.map((t) => `
       <div class="feature-card">
-        <div class="icon" style="background:${t.color}22; color:${t.color};">${t.icono}</div>
+        <div class="icon" style="background:${t.color}22; color:${t.color};"><i class="ph ph-${t.icono}" aria-hidden="true"></i></div>
         <h3>${t.nombre}</h3>
         <p>${t.descripcion}</p>
         <p class="text-muted mb-0"><strong>Contenedor:</strong> ${t.contenedor}</p>

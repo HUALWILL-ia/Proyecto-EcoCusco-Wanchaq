@@ -51,7 +51,7 @@
     const tbody = document.getElementById('tablaAuditoria');
 
     if (registrosActuales.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">🕵️</div><h3>Sin registros de auditoría con este filtro</h3></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon"><i class="ph ph-magnifying-glass" aria-hidden="true"></i></div><h3>Sin registros de auditoría con este filtro</h3></div></td></tr>`;
       document.getElementById('paginacionAuditoria').innerHTML = '';
       return;
     }

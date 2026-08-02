@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../css/components.css">
 <link rel="stylesheet" href="../css/layout.css">
 <link rel="icon" type="image/png" href="../assets/logos/Logo_solo_hoja.png">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
 
@@ -21,20 +22,20 @@
   <div class="main-content">
     <header class="topbar">
       <div class="flex items-center gap-3">
-        <button class="icon-btn sidebar-toggle" id="btnSidebarToggle" aria-label="Abrir menú">☰</button>
+        <button class="icon-btn sidebar-toggle" id="btnSidebarToggle" aria-label="Abrir menú"><i class="ph ph-list" aria-hidden="true"></i></button>
         <div class="topbar-title">
           <h1>Mi jornada de recolección</h1>
           <span id="fechaHoyOperador"></span>
         </div>
       </div>
       <div class="topbar-actions">
-        <button class="icon-btn" aria-label="Notificaciones"><span class="dot"></span>🔔</button>
+        <button class="icon-btn" aria-label="Notificaciones"><span class="dot"></span><i class="ph ph-bell" aria-hidden="true"></i></button>
       </div>
     </header>
 
     <main class="page-content">
       <div class="alert alert-warning" id="avisoPasswordTemporal" style="display:none; margin-bottom:var(--space-5);">
-        <span>🔐</span>
+        <span><i class="ph ph-shield-check" aria-hidden="true"></i></span>
         <div>
           <strong>Sigues usando la contraseña temporal enviada por correo.</strong>
           <p class="mb-0">Por seguridad, <a href="perfil.html">cámbiala ahora</a> desde tu perfil.</p>
@@ -58,22 +59,22 @@
             <div class="card-header"><h2>Accesos rápidos</h2></div>
             <div class="quick-actions-grid">
               <a href="rutas.html" class="quick-action">
-                <span class="icon">🧭</span>
+                <span class="icon"><i class="ph ph-compass" aria-hidden="true"></i></span>
                 <strong>Ver mis rutas</strong>
                 <span>Detalle de puntos de recolección</span>
               </a>
               <a href="registro-recoleccion.html" class="quick-action">
-                <span class="icon">✅</span>
+                <span class="icon"><i class="ph-fill ph-check-circle" aria-hidden="true"></i></span>
                 <strong>Registrar recolección</strong>
                 <span>Marca puntos como completados</span>
               </a>
               <a href="incidencias.html" class="quick-action">
-                <span class="icon">🚨</span>
+                <span class="icon"><i class="ph ph-warning-circle" aria-hidden="true"></i></span>
                 <strong>Reportar incidencia</strong>
                 <span>Obstáculos, residuos peligrosos, etc.</span>
               </a>
               <a href="seguimiento-gps.html" class="quick-action">
-                <span class="icon">📍</span>
+                <span class="icon"><i class="ph ph-map-pin" aria-hidden="true"></i></span>
                 <strong>Ver mi posición GPS</strong>
                 <span>Visualiza tu ubicación en el mapa</span>
               </a>

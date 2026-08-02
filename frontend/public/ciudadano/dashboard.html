@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../css/components.css">
 <link rel="stylesheet" href="../css/layout.css">
 <link rel="icon" type="image/png" href="../assets/logos/Logo_solo_hoja.png">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
 
@@ -18,7 +19,7 @@
 
 <main class="container" style="padding-top:var(--space-6); padding-bottom:var(--space-7);">
   <div class="topbar-title mb-0" style="margin-bottom:var(--space-5);">
-    <h1 id="saludoUsuario">Hola 👋</h1>
+    <h1 id="saludoUsuario">Hola </h1>
     <span id="fechaHoy"></span>
   </div>
 
@@ -43,27 +44,27 @@
         <div class="card-header"><h2>Accesos rápidos</h2></div>
         <div class="quick-actions-grid">
           <a href="horarios.html" class="quick-action">
-            <span class="icon">🗓️</span>
+            <span class="icon"><i class="ph ph-calendar" aria-hidden="true"></i></span>
             <strong>Ver horarios</strong>
             <span>Consulta los días de recolección por tipo de residuo</span>
           </a>
           <a href="seguimiento-gps.html" class="quick-action">
-            <span class="icon">📍</span>
+            <span class="icon"><i class="ph ph-map-pin" aria-hidden="true"></i></span>
             <strong>Seguimiento GPS</strong>
             <span>Ubica el camión recolector de tu zona</span>
           </a>
           <a href="historial-reciclaje.html" class="quick-action">
-            <span class="icon">♻️</span>
+            <span class="icon"><i class="ph ph-recycle" aria-hidden="true"></i></span>
             <strong>Historial de reciclaje</strong>
             <span>Revisa las recolecciones registradas en tu zona</span>
           </a>
           <a href="incidencias.html" class="quick-action">
-            <span class="icon">🚨</span>
+            <span class="icon"><i class="ph ph-warning-circle" aria-hidden="true"></i></span>
             <strong>Reportar incidencia</strong>
             <span>Informa un problema de recolección</span>
           </a>
           <a href="notificaciones.html" class="quick-action">
-            <span class="icon">🔔</span>
+            <span class="icon"><i class="ph ph-bell" aria-hidden="true"></i></span>
             <strong>Notificaciones</strong>
             <span>Revisa tus avisos y alertas recientes</span>
           </a>
@@ -75,7 +76,7 @@
       <div class="card">
         <div class="card-header"><h3 class="mb-0">Mi nivel ecológico</h3></div>
         <div class="text-center">
-          <div class="avatar-lg" style="margin:0 auto var(--space-3); background:var(--color-primary-100); color:var(--color-primary-800);" id="iconoNivel">🌱</div>
+          <div class="avatar-lg" style="margin:0 auto var(--space-3); background:var(--color-primary-100); color:var(--color-primary-800);" id="iconoNivel"><i class="ph-fill ph-plant" aria-hidden="true"></i></div>
           <h3 id="nombreNivel">Eco Semilla</h3>
           <p class="text-muted" id="descripcionNivel">Sigue reciclando para subir de nivel</p>
           <div class="progress-bar mt-3"><div class="progress-bar-fill" id="barraNivel" style="width:0%"></div></div>

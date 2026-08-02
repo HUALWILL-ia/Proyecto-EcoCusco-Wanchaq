@@ -43,7 +43,7 @@
           <td>${estadoBadge}</td>
           <td>${c.nivelCombustible}%</td>
           <td>
-            <button class="btn btn-outline btn-sm" data-accion="gps" data-id="${c.id}">📍 GPS</button>
+            <button class="btn btn-outline btn-sm" data-accion="gps" data-id="${c.id}"><i class="ph ph-map-pin" aria-hidden="true"></i> GPS</button>
             <button class="btn btn-outline btn-sm" data-accion="editar" data-id="${c.id}">Editar</button>
             <button class="btn btn-danger btn-sm" data-accion="eliminar" data-id="${c.id}">Eliminar</button>
           </td>
@@ -81,7 +81,7 @@
       const centro = camion.ubicacionActual?.lat ? [camion.ubicacionActual.lat, camion.ubicacionActual.lng] : [-13.5292, -71.955];
       mapaGps = L.map('mapaGpsCamion').setView(centro, 15);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors', maxZoom: 18 }).addTo(mapaGps);
-      marcadorGps = L.marker(centro, { icon: L.divIcon({ html: '🚛', className: 'icono-camion-mapa', iconSize: [32, 32] }) }).addTo(mapaGps);
+      marcadorGps = L.marker(centro, { icon: L.divIcon({ html: '<i class="ph ph-truck" aria-hidden="true"></i>', className: 'icono-camion-mapa', iconSize: [32, 32] }) }).addTo(mapaGps);
 
       try {
         dibujarPoligonosZonas(mapaGps, todasZonas, { zonaDestacadaId: camion.zonaAsignada });

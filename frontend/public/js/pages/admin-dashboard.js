@@ -27,25 +27,25 @@
   function renderKPIs(kpis) {
     document.getElementById('kpiGridAdmin').innerHTML = `
       <div class="kpi-card">
-        <div class="kpi-icon">👥</div>
+        <div class="kpi-icon"><i class="ph ph-users" aria-hidden="true"></i></div>
         <span class="kpi-label">Usuarios activos</span>
         <span class="kpi-value">${kpis.usuariosActivos}</span>
         <span class="kpi-trend">De ${kpis.usuariosTotal} registrados</span>
       </div>
       <div class="kpi-card kpi-info">
-        <div class="kpi-icon">🗺️</div>
+        <div class="kpi-icon"><i class="ph ph-map-trifold" aria-hidden="true"></i></div>
         <span class="kpi-label">Zonas cubiertas</span>
         <span class="kpi-value">${kpis.zonas}</span>
         <span class="kpi-trend">Distrito de Wanchaq</span>
       </div>
       <div class="kpi-card ${kpis.incidenciasPendientes > 0 ? 'kpi-warning' : ''}">
-        <div class="kpi-icon">🚨</div>
+        <div class="kpi-icon"><i class="ph ph-warning-circle" aria-hidden="true"></i></div>
         <span class="kpi-label">Incidencias pendientes</span>
         <span class="kpi-value">${kpis.incidenciasPendientes}</span>
         <span class="kpi-trend">De ${kpis.incidenciasTotal} reportadas</span>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon">✅</div>
+        <div class="kpi-icon"><i class="ph-fill ph-check-circle" aria-hidden="true"></i></div>
         <span class="kpi-label">Recolecciones del día</span>
         <span class="kpi-value">${kpis.recoleccionesHoy}</span>
         <span class="kpi-trend">Registros de la flota hoy</span>

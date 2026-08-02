@@ -73,7 +73,7 @@
           latitud: posicion.coords.latitude,
           longitud: posicion.coords.longitude,
         };
-        estadoUbicacion.textContent = '✅ Ubicación capturada correctamente.';
+        estadoUbicacion.textContent = '<i class="ph-fill ph-check-circle" aria-hidden="true"></i> Ubicación capturada correctamente.';
         btnUsarUbicacion.disabled = false;
       },
       (error) => {
@@ -101,7 +101,7 @@
       const datos = await consultarDni(campos.dni.value);
       if (datos.nombres) campos.nombres.value = datos.nombres;
       if (datos.apellidos) campos.apellidos.value = datos.apellidos;
-      estadoBusquedaDni.textContent = '✅ Nombres y apellidos autocompletados. Puedes corregirlos si es necesario.';
+      estadoBusquedaDni.textContent = '<i class="ph-fill ph-check-circle" aria-hidden="true"></i> Nombres y apellidos autocompletados. Puedes corregirlos si es necesario.';
     } catch (err) {
       estadoBusquedaDni.textContent = `${err.message} (puedes seguir llenando el formulario manualmente).`;
     }

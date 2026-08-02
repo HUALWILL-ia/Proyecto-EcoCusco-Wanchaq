@@ -59,7 +59,7 @@
     const tbody = document.getElementById('tablaUsuarios');
 
     if (lista.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">👥</div><h3>Sin resultados</h3></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon"><i class="ph ph-users" aria-hidden="true"></i></div><h3>Sin resultados</h3></div></td></tr>`;
       document.getElementById('paginacionUsuarios').innerHTML = '';
       return;
     }

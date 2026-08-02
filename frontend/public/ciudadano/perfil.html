@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../css/components.css">
 <link rel="stylesheet" href="../css/layout.css">
 <link rel="icon" type="image/png" href="../assets/logos/Logo_solo_hoja.png">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
 
@@ -23,7 +24,7 @@
   </div>
 
   <div class="alert alert-warning" id="avisoPasswordTemporal" style="display:none; margin-bottom:var(--space-5);">
-    <span>🔐</span>
+    <span><i class="ph ph-shield-check" aria-hidden="true"></i></span>
     <div>
       <strong>Sigues usando una contraseña temporal.</strong>
       <p class="mb-0">Por seguridad, cámbiala ahora mismo desde el formulario de abajo.</p>
@@ -59,7 +60,7 @@
             <input type="text" id="direccion" class="form-control" placeholder="Ej. Urb. Manuel Prado C-4">
           </div>
           <div class="form-group">
-            <button type="button" class="btn btn-secondary btn-block" id="btnUsarUbicacion">📍 Actualizar con mi ubicación actual</button>
+            <button type="button" class="btn btn-secondary btn-block" id="btnUsarUbicacion"><i class="ph ph-map-pin" aria-hidden="true"></i> Actualizar con mi ubicación actual</button>
             <div class="form-hint" id="estadoUbicacion"></div>
           </div>
           <button type="submit" class="btn btn-primary" id="btnGuardarPerfil">Guardar cambios</button>

@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../css/components.css">
 <link rel="stylesheet" href="../css/layout.css">
 <link rel="icon" type="image/png" href="../assets/logos/Logo_solo_hoja.png">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
 
@@ -21,14 +22,14 @@
   <div class="main-content">
     <header class="topbar">
       <div class="flex items-center gap-3">
-        <button class="icon-btn sidebar-toggle" id="btnSidebarToggle" aria-label="Abrir menú">☰</button>
+        <button class="icon-btn sidebar-toggle" id="btnSidebarToggle" aria-label="Abrir menú"><i class="ph ph-list" aria-hidden="true"></i></button>
         <div class="topbar-title">
           <h1>Crear cuenta de operador</h1>
           <span>Único punto de alta de cuentas para la flota de recolección municipal</span>
         </div>
       </div>
       <div class="topbar-actions">
-        <button class="icon-btn" aria-label="Notificaciones">🔔</button>
+        <button class="icon-btn" aria-label="Notificaciones"><i class="ph ph-bell" aria-hidden="true"></i></button>
       </div>
     </header>
 
@@ -120,7 +121,7 @@
 <div class="modal-overlay" id="modalCredenciales">
   <div class="modal">
     <div class="modal-header">
-      <h3>✅ Cuenta creada exitosamente</h3>
+      <h3><i class="ph-fill ph-check-circle" aria-hidden="true"></i> Cuenta creada exitosamente</h3>
       <button class="modal-close" onclick="cerrarModal('modalCredenciales')">&times;</button>
     </div>
     <p>Se creó la cuenta del operador y se envió un correo con sus credenciales de acceso:</p>

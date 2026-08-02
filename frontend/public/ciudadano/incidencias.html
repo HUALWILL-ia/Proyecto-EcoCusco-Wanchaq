@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../css/components.css">
 <link rel="stylesheet" href="../css/layout.css">
 <link rel="icon" type="image/png" href="../assets/logos/Logo_solo_hoja.png">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
 
@@ -23,8 +24,8 @@
   </div>
 
   <div class="tabs" role="tablist">
-    <button type="button" class="tab-btn active" id="tabBtnReportar" role="tab" aria-selected="true" data-tab="reportar">📝 Reportar nueva</button>
-    <button type="button" class="tab-btn" id="tabBtnMisIncidencias" role="tab" aria-selected="false" data-tab="mis-incidencias">📋 Mis incidencias</button>
+    <button type="button" class="tab-btn active" id="tabBtnReportar" role="tab" aria-selected="true" data-tab="reportar"><i class="ph ph-note-pencil" aria-hidden="true"></i> Reportar nueva</button>
+    <button type="button" class="tab-btn" id="tabBtnMisIncidencias" role="tab" aria-selected="false" data-tab="mis-incidencias"><i class="ph ph-clipboard-text" aria-hidden="true"></i> Mis incidencias</button>
   </div>
 
   <!-- Panel: Reportar nueva -->
@@ -105,7 +106,7 @@
 <!-- Modal de confirmación -->
 <div class="modal-overlay" id="modalConfirmacion">
   <div class="modal text-center">
-    <div class="modal-icon-success">✅</div>
+    <div class="modal-icon-success"><i class="ph-fill ph-check-circle" aria-hidden="true"></i></div>
     <h3>¡Reporte enviado!</h3>
     <p>Tu incidencia fue registrada y será atendida por el equipo de la Gerencia de Gestión Ambiental. Puedes hacer seguimiento desde <strong>Mis incidencias</strong>.</p>
     <div class="modal-actions" style="justify-content:center;">

@@ -617,11 +617,13 @@ INSERT INTO zonas (codigo, nombre, descripcion, referencia, horario_recoleccion,
  '[{"lat":-13.54,"lng":-71.936938},{"lat":-13.537097,"lng":-71.937234},{"lat":-13.536916,"lng":-71.9405},{"lat":-13.537127,"lng":-71.943732},{"lat":-13.54,"lng":-71.944913},{"lat":-13.542738,"lng":-71.94358},{"lat":-13.543258,"lng":-71.9405},{"lat":-13.542973,"lng":-71.937156}]'::jsonb);
 
 -- --- 5.2 Tipos de residuo -------------------------------------------------------
+-- `icono` guarda el nombre de un ícono de Phosphor (https://phosphoricons.com),
+-- ej. "leaf" -> <i class="ph ph-leaf">, no un emoji.
 INSERT INTO tipos_residuo (nombre, descripcion, color, icono, dias_recomendados, contenedor) VALUES
-('Orgánico',                'Restos de alimentos, cáscaras, poda de jardín.',              '#2c9a54', '🍃', ARRAY['Martes','Jueves','Sábado'],     'Bolsa verde / balde municipal'),
-('Reciclable',              'Papel, cartón, plástico, vidrio y metales limpios.',          '#2a6fb0', '♻️', ARRAY['Lunes','Miércoles','Viernes'],  'Bolsa azul / contenedor celeste'),
-('Mixto / No aprovechable', 'Residuos que no pueden separarse ni reciclarse.',             '#78897f', '🗑️', ARRAY['Lunes','Miércoles','Viernes'],  'Bolsa negra'),
-('Voluminoso / Especial',   'Muebles, colchones, escombros menores (requiere coordinación).', '#d98c1f', '🛋️', ARRAY['Coordinación previa con la municipalidad'], 'Programación especial');
+('Orgánico',                'Restos de alimentos, cáscaras, poda de jardín.',              '#2c9a54', 'leaf',      ARRAY['Martes','Jueves','Sábado'],     'Bolsa verde / balde municipal'),
+('Reciclable',              'Papel, cartón, plástico, vidrio y metales limpios.',          '#2a6fb0', 'recycle',   ARRAY['Lunes','Miércoles','Viernes'],  'Bolsa azul / contenedor celeste'),
+('Mixto / No aprovechable', 'Residuos que no pueden separarse ni reciclarse.',             '#78897f', 'trash',     ARRAY['Lunes','Miércoles','Viernes'],  'Bolsa negra'),
+('Voluminoso / Especial',   'Muebles, colchones, escombros menores (requiere coordinación).', '#d98c1f', 'armchair', ARRAY['Coordinación previa con la municipalidad'], 'Programación especial');
 
 -- --- 5.3 Camiones de la flota municipal ------------------------------------------
 INSERT INTO camiones (placa, modelo, capacidad_kg, estado, zona_asignada_id, ultimo_mantenimiento, nivel_combustible, ubicacion_lat, ubicacion_lng, ubicacion_referencia) VALUES

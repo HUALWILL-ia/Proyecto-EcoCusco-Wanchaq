@@ -39,7 +39,7 @@
 
   function render(lista, paginacionInfo) {
     if (lista.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">♻️</div><h3>Sin registros</h3><p>Todavía no hay recolecciones registradas en tu zona con este filtro.</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon"><i class="ph ph-recycle" aria-hidden="true"></i></div><h3>Sin registros</h3><p>Todavía no hay recolecciones registradas en tu zona con este filtro.</p></div></td></tr>`;
       paginacion.innerHTML = '';
       return;
     }

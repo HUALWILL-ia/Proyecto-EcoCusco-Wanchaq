@@ -42,7 +42,7 @@ function crearZonaCarga(contenedor, opciones = {}) {
   contenedor.innerHTML = `
     <div class="upload-zone" tabindex="0" role="button" aria-label="Subir archivo">
       <input type="file" class="upload-zone-input" accept="${accept}" tabindex="-1" aria-hidden="true"${capture ? ` capture="${capture}"` : ''}>
-      <div class="upload-zone-icon">☁️⬆️</div>
+      <div class="upload-zone-icon"><i class="ph ph-upload-simple" aria-hidden="true"></i></div>
       <p class="upload-zone-texto-principal">
         <span class="upload-zone-texto-touch">Toca para subir</span>
         <span class="upload-zone-texto-desktop">Arrastra o haz clic para subir</span>
@@ -58,12 +58,12 @@ function crearZonaCarga(contenedor, opciones = {}) {
     </div>
     <div class="upload-zone-completado" style="display:none;">
       <img class="upload-zone-thumb" alt="Vista previa"${esImagen ? '' : ' style="display:none;"'}>
-      <span class="upload-zone-check">✅</span>
+      <span class="upload-zone-check"><i class="ph-fill ph-check-circle" aria-hidden="true"></i></span>
       <div class="upload-zone-item-info">
         <span class="upload-zone-item-nombre"></span>
         <span class="upload-zone-item-tiempo"></span>
       </div>
-      <button type="button" class="upload-zone-eliminar" aria-label="Eliminar archivo">🗑️</button>
+      <button type="button" class="upload-zone-eliminar" aria-label="Eliminar archivo"><i class="ph ph-trash" aria-hidden="true"></i></button>
     </div>
   `;
 

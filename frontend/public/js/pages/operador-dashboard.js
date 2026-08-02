@@ -36,19 +36,19 @@
   function renderKPIs(ruta, camion, incidencias) {
     document.getElementById('kpiGridOperador').innerHTML = `
       <div class="kpi-card kpi-info">
-        <div class="kpi-icon">🧭</div>
+        <div class="kpi-icon"><i class="ph ph-compass" aria-hidden="true"></i></div>
         <span class="kpi-label">Progreso de ruta</span>
         <span class="kpi-value">${ruta ? ruta.progreso : 0}%</span>
         <span class="kpi-trend">${ruta ? ruta.nombre : 'Sin ruta asignada'}</span>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon">🚛</div>
+        <div class="kpi-icon"><i class="ph ph-truck" aria-hidden="true"></i></div>
         <span class="kpi-label">Estado del camión</span>
         <span class="kpi-value" style="font-size:var(--fs-xl);">${camion ? camion.placa : 'No asignado'}</span>
         <span class="kpi-trend">${camion ? camion.estado : '—'}</span>
       </div>
       <div class="kpi-card ${incidencias.length ? 'kpi-warning' : ''}">
-        <div class="kpi-icon">🚨</div>
+        <div class="kpi-icon"><i class="ph ph-warning-circle" aria-hidden="true"></i></div>
         <span class="kpi-label">Incidencias reportadas</span>
         <span class="kpi-value">${incidencias.length}</span>
         <span class="kpi-trend">Historial personal</span>
@@ -59,7 +59,7 @@
   function renderProgresoRuta(ruta) {
     const contenedor = document.getElementById('progresoRuta');
     if (!ruta) {
-      contenedor.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🧭</div><h3>Sin ruta asignada hoy</h3><p>Contacta a tu coordinador si esperabas una asignación.</p></div>`;
+      contenedor.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><i class="ph ph-compass" aria-hidden="true"></i></div><h3>Sin ruta asignada hoy</h3><p>Contacta a tu coordinador si esperabas una asignación.</p></div>`;
       return;
     }
     contenedor.innerHTML = `
@@ -75,7 +75,7 @@
           <li class="feed-item">
             <span class="feed-dot" style="background:${p.completado ? 'var(--color-primary-500)' : 'var(--color-border-strong)'};"></span>
             <div class="feed-content">
-              <p>${p.completado ? '✅' : '⏳'} ${p.direccion}</p>
+              <p>${p.completado ? '<i class="ph-fill ph-check-circle" aria-hidden="true"></i>' : '<i class="ph ph-hourglass" aria-hidden="true"></i>'} ${p.direccion}</p>
             </div>
           </li>
         `).join('')}
@@ -87,7 +87,7 @@
   function renderEstadoCamion(camion) {
     const contenedor = document.getElementById('estadoCamion');
     if (!camion) {
-      contenedor.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚛</div><h3>Sin camión asignado</h3></div>`;
+      contenedor.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><i class="ph ph-truck" aria-hidden="true"></i></div><h3>Sin camión asignado</h3></div>`;
       return;
     }
     contenedor.innerHTML = `

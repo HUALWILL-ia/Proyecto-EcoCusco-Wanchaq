@@ -40,7 +40,7 @@
     const tbody = document.getElementById('tablaIncidenciasAdmin');
 
     if (lista.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">🚨</div><h3>Sin incidencias con este filtro</h3></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon"><i class="ph ph-warning-circle" aria-hidden="true"></i></div><h3>Sin incidencias con este filtro</h3></div></td></tr>`;
       document.getElementById('paginacionIncidencias').innerHTML = '';
       return;
     }
