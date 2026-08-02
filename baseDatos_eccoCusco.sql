@@ -163,10 +163,20 @@ CREATE TABLE rutas (
     turno       VARCHAR(100),
     estado      estado_ruta NOT NULL DEFAULT 'pendiente',
     progreso    INTEGER NOT NULL DEFAULT 0 CHECK (progreso BETWEEN 0 AND 100),
-    -- Puntos de recolección como arreglo JSONB: [{ "orden":1, "direccion":"...", "completado":false }, ...]
+    -- Puntos de recolección como arreglo JSONB:
+    --   [{ "orden":1, "direccion":"...", "lat":-13.52, "lng":-71.96, "completado":false }, ...]
     -- (se mantiene como JSONB, en vez de una tabla aparte, para que el backend
-    -- pueda leer/escribir el mismo arreglo que ya usaban los controladores de Fase 2).
+    -- pueda leer/escribir el mismo arreglo que ya usaban los controladores de
+    -- Fase 2 -- "orden"/"direccion"/"completado" ya alimentaban el % de
+    -- progreso; "lat"/"lng" se agregan en Fase 3 solo para poder dibujar cada
+    -- punto de recojo sobre el mapa, sin duplicar esa lógica en una tabla aparte).
     puntos      JSONB NOT NULL DEFAULT '[]'::jsonb,
+    -- Trazado real de calles que sigue el camión dentro de su zona (distinto
+    -- del polígono de la zona, que es solo el área general): arreglo JSONB
+    -- [{ "lat":-13.52, "lng":-71.96 }, ...] que se dibuja como polilínea.
+    -- Igual que `poligono` en `zonas`, son coordenadas de ejemplo/ilustrativas
+    -- -- el admin debe ajustarlas con el recorrido real de calles.
+    trazado     JSONB NOT NULL DEFAULT '[]'::jsonb,
     creado_el   TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -579,31 +589,32 @@ CREATE TRIGGER trg_validar_camion_rutas
 
 -- --- 5.1 Zonas de recolección --------------------------------------------------
 -- NOTA IMPORTANTE sobre la columna `poligono`: las coordenadas de abajo son
--- RECTÁNGULOS DE EJEMPLO dispuestos en una cuadrícula 3x3 no solapada alrededor
--- del distrito de Wanchaq — sirven para que el mapa tenga algo que dibujar desde
--- el primer arranque del sistema, pero NO son los límites reales de cada zona.
--- El administrador debe reemplazarlos con las coordenadas reales del distrito
+-- formas APROXIMADAS/ILUSTRATIVAS (8 puntos cada una, generadas a partir del
+-- área real del distrito de Wanchaq — centro ~13°31'48"S 71°57'23"W, ~6.4 km²,
+-- limita con San Sebastián — para que se vean como sectores orgánicos y no
+-- como rectángulos perfectos) pero NO son los límites catastrales reales de
+-- cada barrio. El administrador debe reemplazarlas con las coordenadas reales
 -- (usando el editor de polígonos en admin/zonas.html) antes de usar el sistema
 -- en producción.
 INSERT INTO zonas (codigo, nombre, descripcion, referencia, horario_recoleccion, tipo_residuo_principal, contenedores, poblacion_estimada, poligono) VALUES
 ('ZW-01', 'Centro Wanchaq',  'Casco urbano central, comercios y oficinas administrativas.',                 'Av. Los Incas / Plaza Túpac Amaru',            'Lunes, Miércoles y Viernes — 07:00 a 09:00', 'Mixto',      18, 4200,
- '[{"lat":-13.518,"lng":-71.965},{"lat":-13.518,"lng":-71.956},{"lat":-13.526,"lng":-71.956},{"lat":-13.526,"lng":-71.965}]'::jsonb),
+ '[{"lat":-13.522,"lng":-71.956244},{"lat":-13.519961,"lng":-71.958206},{"lat":-13.51836,"lng":-71.9605},{"lat":-13.518965,"lng":-71.963915},{"lat":-13.522,"lng":-71.965309},{"lat":-13.524323,"lng":-71.963113},{"lat":-13.525762,"lng":-71.9605},{"lat":-13.52477,"lng":-71.957383}]'::jsonb),
 ('ZW-02', 'Manuel Prado',    'Urbanización residencial consolidada.',                                       'Urb. Manuel Prado, altura de Av. La Cultura',  'Martes, Jueves y Sábado — 08:00 a 10:00',    'Orgánico',   14, 3100,
- '[{"lat":-13.518,"lng":-71.955},{"lat":-13.518,"lng":-71.946},{"lat":-13.526,"lng":-71.946},{"lat":-13.526,"lng":-71.955}]'::jsonb),
+ '[{"lat":-13.522,"lng":-71.946071},{"lat":-13.519633,"lng":-71.947837},{"lat":-13.518709,"lng":-71.9505},{"lat":-13.519416,"lng":-71.953407},{"lat":-13.522,"lng":-71.955158},{"lat":-13.524679,"lng":-71.953514},{"lat":-13.525599,"lng":-71.9505},{"lat":-13.5244,"lng":-71.9478}]'::jsonb),
 ('ZW-03', 'Miravalle',       'Zona residencial en ladera, acceso vehicular restringido en tramos altos.',   'Prolongación Av. Miravalle',                   'Lunes, Miércoles y Viernes — 09:30 a 11:30', 'Mixto',      10, 2600,
- '[{"lat":-13.527,"lng":-71.965},{"lat":-13.527,"lng":-71.956},{"lat":-13.535,"lng":-71.956},{"lat":-13.535,"lng":-71.965}]'::jsonb),
+ '[{"lat":-13.531,"lng":-71.956093},{"lat":-13.528924,"lng":-71.958165},{"lat":-13.527463,"lng":-71.9605},{"lat":-13.528887,"lng":-71.962877},{"lat":-13.531,"lng":-71.964976},{"lat":-13.533526,"lng":-71.963342},{"lat":-13.534581,"lng":-71.9605},{"lat":-13.533201,"lng":-71.958024}]'::jsonb),
 ('ZW-04', E'T\'ío',          'Sector semi-urbano próximo a áreas verdes.',                                  E'Vía T\'ío, altura del paradero Amauta',       'Martes y Sábado — 07:30 a 09:00',            'Orgánico',    8, 1800,
- '[{"lat":-13.536,"lng":-71.965},{"lat":-13.536,"lng":-71.956},{"lat":-13.544,"lng":-71.956},{"lat":-13.544,"lng":-71.965}]'::jsonb),
+ '[{"lat":-13.54,"lng":-71.955764},{"lat":-13.537624,"lng":-71.957827},{"lat":-13.536801,"lng":-71.9605},{"lat":-13.53788,"lng":-71.962885},{"lat":-13.54,"lng":-71.964119},{"lat":-13.542554,"lng":-71.963374},{"lat":-13.542991,"lng":-71.9605},{"lat":-13.543028,"lng":-71.957093}]'::jsonb),
 ('ZW-05', 'Magisterio',      'Urbanización docente, alta densidad residencial.',                            'Urb. Magisterio, Av. La Cultura tramo Wanchaq','Lunes, Jueves y Sábado — 08:00 a 10:00',     'Reciclable', 16, 3400,
- '[{"lat":-13.518,"lng":-71.945},{"lat":-13.518,"lng":-71.936},{"lat":-13.526,"lng":-71.936},{"lat":-13.526,"lng":-71.945}]'::jsonb),
+ '[{"lat":-13.522,"lng":-71.936143},{"lat":-13.519177,"lng":-71.937324},{"lat":-13.518804,"lng":-71.9405},{"lat":-13.519329,"lng":-71.943505},{"lat":-13.522,"lng":-71.943878},{"lat":-13.524639,"lng":-71.943469},{"lat":-13.525917,"lng":-71.9405},{"lat":-13.524503,"lng":-71.937684}]'::jsonb),
 ('ZW-06', 'Balconcillo',     'Zona comercial y residencial mixta cercana a la estación ferroviaria.',       'Av. Ferrocarril / Balconcillo Bajo',           'Martes, Jueves y Sábado — 06:30 a 08:30',    'Mixto',      12, 2900,
- '[{"lat":-13.527,"lng":-71.955},{"lat":-13.527,"lng":-71.946},{"lat":-13.535,"lng":-71.946},{"lat":-13.535,"lng":-71.955}]'::jsonb),
+ '[{"lat":-13.531,"lng":-71.946408},{"lat":-13.528961,"lng":-71.948206},{"lat":-13.527165,"lng":-71.9505},{"lat":-13.528758,"lng":-71.953023},{"lat":-13.531,"lng":-71.954618},{"lat":-13.533109,"lng":-71.952872},{"lat":-13.533887,"lng":-71.9505},{"lat":-13.533974,"lng":-71.947154}]'::jsonb),
 ('ZW-07', 'Marcavalle',      'Sector residencial consolidado con áreas de comercio local.',                 'Av. Marcavalle / Jr. Los Cipreses',            'Lunes, Miércoles y Viernes — 08:00 a 10:00', 'Reciclable', 11, 2500,
- '[{"lat":-13.527,"lng":-71.945},{"lat":-13.527,"lng":-71.936},{"lat":-13.535,"lng":-71.936},{"lat":-13.535,"lng":-71.945}]'::jsonb),
+ '[{"lat":-13.531,"lng":-71.937241},{"lat":-13.5289,"lng":-71.938138},{"lat":-13.526713,"lng":-71.9405},{"lat":-13.528252,"lng":-71.943592},{"lat":-13.531,"lng":-71.944585},{"lat":-13.533449,"lng":-71.943256},{"lat":-13.534551,"lng":-71.9405},{"lat":-13.533281,"lng":-71.937934}]'::jsonb),
 ('ZW-08', 'Villa Mejorada',  'Asentamiento residencial en expansión.',                                      'Jr. Villa Mejorada, altura del Colegio San Antonio', 'Martes y Viernes — 09:00 a 11:00',     'Mixto',       9, 2100,
- '[{"lat":-13.536,"lng":-71.955},{"lat":-13.536,"lng":-71.946},{"lat":-13.544,"lng":-71.946},{"lat":-13.544,"lng":-71.955}]'::jsonb),
+ '[{"lat":-13.54,"lng":-71.947007},{"lat":-13.537327,"lng":-71.947493},{"lat":-13.536687,"lng":-71.9505},{"lat":-13.537255,"lng":-71.953588},{"lat":-13.54,"lng":-71.954688},{"lat":-13.542494,"lng":-71.953306},{"lat":-13.544059,"lng":-71.9505},{"lat":-13.54228,"lng":-71.947935}]'::jsonb),
 ('ZW-09', 'Independencia',   'Sector residencial próximo al límite con el distrito de Cusco.',              'Av. Independencia / Jr. Tres de Mayo',         'Lunes, Jueves y Sábado — 07:00 a 09:00',     'Orgánico',   13, 2800,
- '[{"lat":-13.536,"lng":-71.945},{"lat":-13.536,"lng":-71.936},{"lat":-13.544,"lng":-71.936},{"lat":-13.544,"lng":-71.945}]'::jsonb);
+ '[{"lat":-13.54,"lng":-71.936938},{"lat":-13.537097,"lng":-71.937234},{"lat":-13.536916,"lng":-71.9405},{"lat":-13.537127,"lng":-71.943732},{"lat":-13.54,"lng":-71.944913},{"lat":-13.542738,"lng":-71.94358},{"lat":-13.543258,"lng":-71.9405},{"lat":-13.542973,"lng":-71.937156}]'::jsonb);
 
 -- --- 5.2 Tipos de residuo -------------------------------------------------------
 INSERT INTO tipos_residuo (nombre, descripcion, color, icono, dias_recomendados, contenedor) VALUES
@@ -652,27 +663,33 @@ INSERT INTO usuarios (rol, nombres, apellidos, dni, correo, password_hash, telef
  (SELECT id FROM zonas WHERE codigo='ZW-01'), 'Av. Los Incas 245', 'activo', 'Eco Plata', 58.2);
 
 -- --- 5.7 Rutas de ejemplo ------------------------------------------------------------
-INSERT INTO rutas (nombre, zona_id, camion_id, operador_id, turno, estado, progreso, puntos) VALUES
+-- `trazado` y las coordenadas lat/lng de cada punto en `puntos` son, igual que
+-- los polígonos de zona, aproximados/ilustrativos -- el admin debe ajustarlos
+-- con el recorrido real de calles de cada ruta.
+INSERT INTO rutas (nombre, zona_id, camion_id, operador_id, turno, estado, progreso, puntos, trazado) VALUES
 ('Ruta Centro Wanchaq - Matutina',
  (SELECT id FROM zonas WHERE codigo='ZW-01'), (SELECT id FROM camiones WHERE placa='WQC-101'),
  (SELECT id FROM usuarios WHERE correo='econdori@munwanchaq.gob.pe'), '06:30 - 09:30', 'en_progreso', 50,
- '[{"orden":1,"direccion":"Av. Los Incas cuadra 1","completado":true},
-   {"orden":2,"direccion":"Plaza Túpac Amaru","completado":true},
-   {"orden":3,"direccion":"Jr. Manco Cápac","completado":false},
-   {"orden":4,"direccion":"Av. Huáscar","completado":false}]'::jsonb),
+ '[{"orden":1,"direccion":"Av. Los Incas cuadra 1","lat":-13.519,"lng":-71.963,"completado":true},
+   {"orden":2,"direccion":"Plaza Túpac Amaru","lat":-13.5205,"lng":-71.961,"completado":true},
+   {"orden":3,"direccion":"Jr. Manco Cápac","lat":-13.522,"lng":-71.959,"completado":false},
+   {"orden":4,"direccion":"Av. Huáscar","lat":-13.524,"lng":-71.957,"completado":false}]'::jsonb,
+ '[{"lat":-13.5185,"lng":-71.9635},{"lat":-13.520,"lng":-71.962},{"lat":-13.5215,"lng":-71.960},{"lat":-13.523,"lng":-71.958},{"lat":-13.5245,"lng":-71.9565}]'::jsonb),
 
 ('Ruta Manuel Prado - Matutina',
  (SELECT id FROM zonas WHERE codigo='ZW-02'), (SELECT id FROM camiones WHERE placa='WQC-102'),
  (SELECT id FROM usuarios WHERE correo='jhuaman@munwanchaq.gob.pe'), '08:00 - 10:30', 'en_progreso', 33,
- '[{"orden":1,"direccion":"Urb. Manuel Prado A-1","completado":true},
-   {"orden":2,"direccion":"Urb. Manuel Prado B-3","completado":false},
-   {"orden":3,"direccion":"Av. La Cultura tramo Wanchaq","completado":false}]'::jsonb),
+ '[{"orden":1,"direccion":"Urb. Manuel Prado A-1","lat":-13.519,"lng":-71.953,"completado":true},
+   {"orden":2,"direccion":"Urb. Manuel Prado B-3","lat":-13.5215,"lng":-71.950,"completado":false},
+   {"orden":3,"direccion":"Av. La Cultura tramo Wanchaq","lat":-13.5235,"lng":-71.9475,"completado":false}]'::jsonb,
+ '[{"lat":-13.5185,"lng":-71.9535},{"lat":-13.520,"lng":-71.951},{"lat":-13.522,"lng":-71.9495},{"lat":-13.524,"lng":-71.9475}]'::jsonb),
 
 ('Ruta Independencia - Matutina',
  (SELECT id FROM zonas WHERE codigo='ZW-09'), (SELECT id FROM camiones WHERE placa='WQC-104'),
  NULL, '07:00 - 09:00', 'pendiente', 0,
- '[{"orden":1,"direccion":"Av. Independencia cuadra 2","completado":false},
-   {"orden":2,"direccion":"Jr. Tres de Mayo","completado":false}]'::jsonb);
+ '[{"orden":1,"direccion":"Av. Independencia cuadra 2","lat":-13.538,"lng":-71.942,"completado":false},
+   {"orden":2,"direccion":"Jr. Tres de Mayo","lat":-13.5405,"lng":-71.938,"completado":false}]'::jsonb,
+ '[{"lat":-13.537,"lng":-71.943},{"lat":-13.539,"lng":-71.940},{"lat":-13.5415,"lng":-71.9375}]'::jsonb);
 
 -- --- 5.8 Incidencias de ejemplo -------------------------------------------------------
 INSERT INTO incidencias (tipo, descripcion, zona, direccion, reportado_por, rol_reporta, estado, prioridad, fecha) VALUES

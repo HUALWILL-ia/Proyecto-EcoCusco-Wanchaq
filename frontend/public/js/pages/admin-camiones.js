@@ -91,11 +91,19 @@
 
       renderInfoGps(null, camion);
 
-      obtenerGPSPorCamion(camion.id).then((ubicacion) => {
+      obtenerGPSPorCamion(camion.id).then(async (ubicacion) => {
         if (ubicacion) {
           marcadorGps.setLatLng([ubicacion.lat, ubicacion.lng]);
           mapaGps.panTo([ubicacion.lat, ubicacion.lng]);
           renderInfoGps(ubicacion, camion);
+          if (ubicacion.rutaId) {
+            try {
+              const ruta = await obtenerRutaPorId(ubicacion.rutaId);
+              if (ruta) dibujarTrazadoRuta(mapaGps, ruta);
+            } catch (err) {
+              // El mapa sigue siendo útil sin el trazado/puntos si esta consulta falla.
+            }
+          }
         }
       }).catch(() => {});
 

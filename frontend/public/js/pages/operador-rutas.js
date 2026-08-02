@@ -92,15 +92,23 @@
         <p class="text-muted mt-2">${ruta.progreso}% completado — ${ruta.puntos.filter((p) => p.completado).length}/${ruta.puntos.length} puntos</p>
         <div class="table-wrapper mt-3">
           <table class="data-table">
-            <thead><tr><th>#</th><th>Dirección</th><th>Estado</th></tr></thead>
+            <thead><tr><th>#</th><th>Punto de recojo</th><th>Completado</th></tr></thead>
             <tbody>
-              ${ruta.puntos.map((p) => `
+              ${ruta.puntos.map((p) => {
+                const id = `punto-${ruta.id}-${p.orden}`;
+                return `
                 <tr>
                   <td>${p.orden}</td>
                   <td>${p.direccion}</td>
-                  <td>${p.completado ? '<span class="badge badge-success">Completado</span>' : '<span class="badge badge-neutral">Pendiente</span>'}</td>
+                  <td>
+                    <div class="form-check" style="margin:0;">
+                      <input type="checkbox" id="${id}" data-accion="punto" data-ruta-id="${ruta.id}" data-orden="${p.orden}" ${p.completado ? 'checked' : ''} ${finalizada ? 'disabled' : ''}>
+                      <label for="${id}">${p.completado ? 'Completado' : 'Pendiente'}</label>
+                    </div>
+                  </td>
                 </tr>
-              `).join('')}
+              `;
+              }).join('')}
             </tbody>
           </table>
         </div>
@@ -113,6 +121,22 @@
       </div>
     `;
     }).join('');
+
+    contenedor.querySelectorAll('input[data-accion="punto"]').forEach((checkbox) => {
+      checkbox.addEventListener('change', async () => {
+        const rutaId = Number(checkbox.dataset.rutaId);
+        const orden = Number(checkbox.dataset.orden);
+        const completado = checkbox.checked;
+        checkbox.disabled = true;
+        try {
+          await actualizarPuntoRuta(rutaId, orden, completado);
+        } catch (err) {
+          mostrarToast('error', 'No se pudo actualizar el punto', err.message);
+        } finally {
+          render(); // refleja el nuevo % de progreso calculado por el backend
+        }
+      });
+    });
 
     contenedor.querySelectorAll('button[data-accion="iniciar"]').forEach((boton) => {
       boton.addEventListener('click', async () => {

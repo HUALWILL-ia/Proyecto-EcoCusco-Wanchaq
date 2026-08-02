@@ -99,6 +99,22 @@
         marcadores.set(ubicacion.camionId, { marcador, ubicacion });
       }
       if (esDeMiZona(ubicacion)) renderInfoMiZona(ubicacion);
+      dibujarRutaSiFalta(ubicacion.rutaId);
+    }
+
+    // Trazado (calles) + puntos de recojo de cada ruta activa: se dibujan una
+    // sola vez por ruta (no cambian con cada ping de GPS, a diferencia del
+    // marcador del camión).
+    const rutasDibujadas = new Set();
+    async function dibujarRutaSiFalta(rutaId) {
+      if (!rutaId || rutasDibujadas.has(rutaId)) return;
+      rutasDibujadas.add(rutaId);
+      try {
+        const ruta = await obtenerRutaPorId(rutaId);
+        if (ruta) dibujarTrazadoRuta(mapa, ruta);
+      } catch (err) {
+        // El mapa sigue siendo útil sin el trazado si esta consulta falla.
+      }
     }
 
     activos.forEach(upsertMarcador);

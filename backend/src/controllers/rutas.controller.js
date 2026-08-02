@@ -23,7 +23,7 @@ const obtenerPorId = asyncHandler(async (req, res) => {
 });
 
 const crear = asyncHandler(async (req, res) => {
-  const { nombre, zona, camion, operador, turno, puntos } = req.body;
+  const { nombre, zona, camion, operador, turno, puntos, trazado } = req.body;
 
   const listaPuntos = Array.isArray(puntos) && puntos.length > 0
     ? puntos.map((direccion, i) => (typeof direccion === 'string'
@@ -39,6 +39,7 @@ const crear = asyncHandler(async (req, res) => {
     turno: turno || '',
     estado: 'pendiente',
     puntos: listaPuntos,
+    trazado: Array.isArray(trazado) ? trazado : [],
     progreso: 0,
   });
 
@@ -50,7 +51,7 @@ const actualizar = asyncHandler(async (req, res) => {
   if (!ruta) throw ApiError.notFound('Ruta no encontrada.');
 
   const cambios = {};
-  ['nombre', 'zona', 'camion', 'operador', 'turno', 'estado', 'progreso'].forEach((campo) => {
+  ['nombre', 'zona', 'camion', 'operador', 'turno', 'estado', 'progreso', 'trazado'].forEach((campo) => {
     if (req.body[campo] !== undefined) cambios[campo] = req.body[campo];
   });
 

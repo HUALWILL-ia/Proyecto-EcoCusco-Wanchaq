@@ -385,6 +385,50 @@ function dibujarPoligonosZonas(mapa, zonas, opciones = {}) {
 }
 
 /**
+ * Dibuja sobre un mapa Leaflet ya inicializado el trazado (polilínea, el
+ * recorrido de calles que sigue el camión dentro de su zona) y los puntos de
+ * recojo (paradas estratégicas a lo largo de ese trazado) de una ruta.
+ * Se usa en los 3 mapas de seguimiento GPS (ciudadano, operador, admin) para
+ * que además del área general de la zona se entienda qué calles cubre la
+ * ruta y dónde se detiene el camión.
+ * @param {L.Map} mapa
+ * @param {{trazado?: Array<{lat:number,lng:number}>, puntos?: Array<{orden:number,direccion?:string,lat?:number,lng?:number,completado?:boolean}>}} ruta
+ * @returns {L.Layer[]} capas creadas (por si el caller necesita quitarlas después)
+ */
+function dibujarTrazadoRuta(mapa, ruta) {
+  const capas = [];
+  if (!ruta) return capas;
+
+  if (Array.isArray(ruta.trazado) && ruta.trazado.length >= 2) {
+    const linea = L.polyline(ruta.trazado.map((p) => [p.lat, p.lng]), {
+      color: '#2a6fb0',
+      weight: 4,
+      opacity: 0.85,
+    }).addTo(mapa);
+    capas.push(linea);
+  }
+
+  if (Array.isArray(ruta.puntos)) {
+    ruta.puntos
+      .filter((p) => typeof p.lat === 'number' && typeof p.lng === 'number')
+      .sort((a, b) => a.orden - b.orden)
+      .forEach((p) => {
+        const icono = L.divIcon({
+          html: p.completado ? '✅' : '📍',
+          className: 'icono-punto-recojo',
+          iconSize: [20, 20],
+        });
+        const marcador = L.marker([p.lat, p.lng], { icon: icono })
+          .addTo(mapa)
+          .bindPopup(`<strong>${p.orden}. ${p.direccion || 'Punto de recojo'}</strong>${p.completado ? '<br><span class="badge badge-success">Completado</span>' : ''}`);
+        capas.push(marcador);
+      });
+  }
+
+  return capas;
+}
+
+/**
  * Pinta una leyenda simple (chips de color + nombre) para los polígonos
  * dibujados con dibujarPoligonosZonas().
  */
@@ -490,6 +534,7 @@ window.formatearFechaHora = formatearFechaHora;
 window.badgeEstadoIncidencia = badgeEstadoIncidencia;
 window.badgeEstadoRuta = badgeEstadoRuta;
 window.dibujarPoligonosZonas = dibujarPoligonosZonas;
+window.dibujarTrazadoRuta = dibujarTrazadoRuta;
 window.renderLeyendaZonas = renderLeyendaZonas;
 window.avatarHtml = avatarHtml;
 

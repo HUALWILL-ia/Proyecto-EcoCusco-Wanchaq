@@ -19,6 +19,7 @@ function mapRow(row) {
     estado: row.estado,
     progreso: row.progreso,
     puntos: row.puntos || [],
+    trazado: row.trazado || [],
     creadoEl: row.creado_el,
     updatedAt: row.updated_at,
   };
@@ -41,8 +42,8 @@ async function buscarPorOperador(operadorId) {
 
 async function crear(ruta) {
   const { rows } = await db.query(
-    `INSERT INTO rutas (nombre, zona_id, camion_id, operador_id, turno, estado, progreso, puntos)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    `INSERT INTO rutas (nombre, zona_id, camion_id, operador_id, turno, estado, progreso, puntos, trazado)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      RETURNING *`,
     [
       ruta.nombre,
@@ -53,6 +54,7 @@ async function crear(ruta) {
       ruta.estado || 'pendiente',
       ruta.progreso ?? 0,
       JSON.stringify(ruta.puntos || []),
+      JSON.stringify(ruta.trazado || []),
     ]
   );
   return mapRow(rows[0]);
@@ -74,6 +76,7 @@ async function actualizar(id, cambios) {
   if (cambios.estado !== undefined) agregar('estado', cambios.estado);
   if (cambios.progreso !== undefined) agregar('progreso', cambios.progreso);
   if (cambios.puntos !== undefined) agregar('puntos', JSON.stringify(cambios.puntos));
+  if (cambios.trazado !== undefined) agregar('trazado', JSON.stringify(cambios.trazado));
 
   if (asignaciones.length === 0) return buscarPorId(id);
 

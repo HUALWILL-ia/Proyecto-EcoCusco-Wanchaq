@@ -79,6 +79,15 @@
       // El mapa sigue siendo útil sin los polígonos si la carga de zonas falla.
     }
 
+    if (rutaActivaId) {
+      try {
+        const ruta = await obtenerRutaPorId(rutaActivaId);
+        if (ruta) dibujarTrazadoRuta(mapa, ruta);
+      } catch (err) {
+        // El mapa sigue siendo útil sin el trazado/puntos si esta consulta falla.
+      }
+    }
+
     const icono = L.divIcon({ html: '🚛', className: 'icono-camion-mapa', iconSize: [32, 32] });
     marcador = L.marker(centro, { icon: icono }).addTo(mapa);
     if (camion) marcador.bindPopup(`<strong>${camion.placa}</strong>`);
