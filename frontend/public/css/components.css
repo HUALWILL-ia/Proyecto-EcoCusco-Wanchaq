@@ -484,6 +484,24 @@ table.data-table { width: 100%; border-collapse: collapse; font-size: var(--fs-s
 /* Puntos de recojo a lo largo del trazado de una ruta (dibujarTrazadoRuta en ui.js). */
 .icono-punto-recojo { font-size: 1rem; text-align: center; line-height: 1; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35)); }
 
+/* Leyenda del mapa de seguimiento GPS del ciudadano (control de Leaflet,
+   esquina inferior izquierda): explica qué representa cada elemento. */
+.leyenda-mapa-gps {
+  background: var(--color-surface);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-size: var(--fs-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+.leyenda-mapa-gps > div { display: flex; align-items: center; gap: var(--space-2); white-space: nowrap; }
+.leyenda-muestra-zona {
+  display: inline-block; width: 12px; height: 12px;
+  border: 2px solid #1f7d43; background: rgba(31,125,67,0.18); border-radius: 3px;
+}
+.leyenda-muestra-linea { display: inline-block; width: 18px; height: 3px; background: #2a6fb0; border-radius: 2px; }
+
 /* --- Logo institucional -------------------------------------------------------- */
 .brand-logo {
   width: 44px; height: 44px;

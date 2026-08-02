@@ -59,6 +59,21 @@
       }).addTo(mapa).bindPopup('Tu ubicación aproximada');
     }
 
+    // Leyenda del mapa (esquina inferior izquierda): qué representa cada
+    // elemento — zona, línea de ruta, punto de recojo y camión en movimiento.
+    const leyendaControl = L.control({ position: 'bottomleft' });
+    leyendaControl.onAdd = function () {
+      const div = L.DomUtil.create('div', 'leyenda-mapa-gps');
+      div.innerHTML = `
+        <div><span class="leyenda-muestra-zona"></span>Zona</div>
+        <div><span class="leyenda-muestra-linea"></span>Línea de ruta</div>
+        <div><span>📍</span>Punto de recojo</div>
+        <div><span>🚛</span>Camión en movimiento</div>
+      `;
+      return div;
+    };
+    leyendaControl.addTo(mapa);
+
     // Un marcador por camión activo, indexado por camionId (camionId -> { marcador, ubicacion }).
     const marcadores = new Map();
 
@@ -96,24 +111,44 @@
         const marcador = L.marker([ubicacion.lat, ubicacion.lng], { icon: iconoPara(ubicacion) })
           .addTo(mapa)
           .bindPopup(popupPara(ubicacion));
+        // Al tocar un camión, su ruta pasa a ser la "seleccionada": solo esa
+        // muestra trazado + puntos de recojo (evita saturar el mapa con las
+        // líneas de todas las rutas activas a la vez).
+        marcador.on('click', () => {
+          rutaSeleccionadaId = ubicacion.rutaId;
+          actualizarCapaRutaSeleccionada();
+        });
         marcadores.set(ubicacion.camionId, { marcador, ubicacion });
       }
       if (esDeMiZona(ubicacion)) renderInfoMiZona(ubicacion);
-      dibujarRutaSiFalta(ubicacion.rutaId);
+      actualizarCapaRutaSeleccionada();
     }
 
-    // Trazado (calles) + puntos de recojo de cada ruta activa: se dibujan una
-    // sola vez por ruta (no cambian con cada ping de GPS, a diferencia del
-    // marcador del camión).
-    const rutasDibujadas = new Set();
-    async function dibujarRutaSiFalta(rutaId) {
-      if (!rutaId || rutasDibujadas.has(rutaId)) return;
-      rutasDibujadas.add(rutaId);
+    // Trazado (calles) + puntos de recojo: solo de la ruta seleccionada por el
+    // ciudadano (clic en un camión) o, por defecto, la de su propia zona.
+    // Vive en su propio layer group para poder limpiarla y redibujar solo esa
+    // ruta al cambiar la selección, sin tocar los marcadores de camión.
+    let rutaSeleccionadaId = null;
+    let rutaDibujadaId = null;
+    const capaRutaSeleccionada = L.layerGroup().addTo(mapa);
+
+    function rutaEfectivaId() {
+      if (rutaSeleccionadaId) return rutaSeleccionadaId;
+      const propia = ubicacionMiZona();
+      return propia ? propia.rutaId : null;
+    }
+
+    async function actualizarCapaRutaSeleccionada() {
+      const id = rutaEfectivaId();
+      if (id === rutaDibujadaId) return; // ya está dibujada, nada que hacer
+      rutaDibujadaId = id;
+      capaRutaSeleccionada.clearLayers();
+      if (!id) return;
       try {
-        const ruta = await obtenerRutaPorId(rutaId);
-        if (ruta) dibujarTrazadoRuta(mapa, ruta);
+        const ruta = await obtenerRutaPorId(id);
+        if (ruta) dibujarTrazadoRuta(capaRutaSeleccionada, ruta);
       } catch (err) {
-        // El mapa sigue siendo útil sin el trazado si esta consulta falla.
+        // El mapa sigue siendo útil sin el trazado/puntos si esta consulta falla.
       }
     }
 

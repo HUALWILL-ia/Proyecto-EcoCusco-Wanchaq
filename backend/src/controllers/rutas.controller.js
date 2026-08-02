@@ -74,6 +74,27 @@ const eliminar = asyncHandler(async (req, res) => {
 });
 
 /**
+ * GET /api/rutas/:id/trazado — polilínea de calles de una ruta. Accesible a
+ * cualquier rol autenticado (ciudadano incluido: el mapa general solo dibuja
+ * el trazado de la ruta seleccionada/de su zona, ver ciudadano-seguimiento-gps.js).
+ */
+const obtenerTrazado = asyncHandler(async (req, res) => {
+  const ruta = await rutasRepo.buscarPorId(req.params.id);
+  if (!ruta) throw ApiError.notFound('Ruta no encontrada.');
+  res.json({ success: true, data: ruta.trazado });
+});
+
+/**
+ * GET /api/rutas/:id/puntos-recojo — puntos de recojo (orden, dirección,
+ * lat/lng, completado) de una ruta. Mismo acceso que /trazado.
+ */
+const obtenerPuntosRecojo = asyncHandler(async (req, res) => {
+  const ruta = await rutasRepo.buscarPorId(req.params.id);
+  if (!ruta) throw ApiError.notFound('Ruta no encontrada.');
+  res.json({ success: true, data: ruta.puntos });
+});
+
+/**
  * GET /api/rutas/horarios (ciudadano) — horario de recolección por zona.
  */
 const obtenerHorarios = asyncHandler(async (req, res) => {
@@ -237,6 +258,8 @@ module.exports = {
   crear,
   actualizar,
   eliminar,
+  obtenerTrazado,
+  obtenerPuntosRecojo,
   obtenerHorarios,
   obtenerPorOperador,
   iniciar,

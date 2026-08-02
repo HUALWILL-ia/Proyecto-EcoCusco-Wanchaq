@@ -73,6 +73,24 @@ async function actualizarPuntoRuta(id, orden, completado) {
   return respuesta.data;
 }
 
+/**
+ * Trazado (polilínea de calles) de una ruta. Accesible a cualquier rol
+ * autenticado, incluido ciudadano.
+ */
+async function obtenerTrazadoRuta(id) {
+  const respuesta = await apiGet(`/rutas/${id}/trazado`);
+  return respuesta.data;
+}
+
+/**
+ * Puntos de recojo (orden, dirección, lat/lng, completado) de una ruta.
+ * Mismo acceso que obtenerTrazadoRuta().
+ */
+async function obtenerPuntosRecojoRuta(id) {
+  const respuesta = await apiGet(`/rutas/${id}/puntos-recojo`);
+  return respuesta.data;
+}
+
 window.obtenerRutasSemilla = obtenerRutasSemilla;
 window.obtenerRutaPorId = obtenerRutaPorId;
 window.obtenerRutasPorOperador = obtenerRutasPorOperador;
@@ -83,3 +101,5 @@ window.eliminarRuta = eliminarRuta;
 window.iniciarRuta = iniciarRuta;
 window.finalizarRuta = finalizarRuta;
 window.actualizarPuntoRuta = actualizarPuntoRuta;
+window.obtenerTrazadoRuta = obtenerTrazadoRuta;
+window.obtenerPuntosRecojoRuta = obtenerPuntosRecojoRuta;

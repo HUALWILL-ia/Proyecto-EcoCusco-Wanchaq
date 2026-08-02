@@ -22,6 +22,10 @@ router.get('/horarios', rutas.obtenerHorarios);
 router.get('/operador', roles(['operador']), rutas.obtenerPorOperador);
 router.get('/', roles(['admin']), rutas.listar);
 router.get('/:id', rutas.obtenerPorId);
+// Sin roles() -- cualquier rol autenticado (ciudadano incluido) puede
+// consultar el trazado/puntos de una ruta, igual que GET /:id de arriba.
+router.get('/:id/trazado', rutas.obtenerTrazado);
+router.get('/:id/puntos-recojo', rutas.obtenerPuntosRecojo);
 
 router.post(
   '/',
